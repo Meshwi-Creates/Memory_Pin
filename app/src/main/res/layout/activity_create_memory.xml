@@ -18,24 +18,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/tvPhotos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📸 Add Photos (1-3)"
-        android:textSize="18sp"
+    <ImageView
+        android:id="@+id/image1"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCreateMemory"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="40dp" />
+        app:layout_constraintEnd_toStartOf="@id/image2"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="5dp" />
+
+    <ImageView
+        android:id="@+id/image2"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvCreateMemory"
+        app:layout_constraintStart_toEndOf="@id/image1"
+        app:layout_constraintEnd_toStartOf="@id/image3"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp" />
+
+    <ImageView
+        android:id="@+id/image3"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvCreateMemory"
+        app:layout_constraintStart_toEndOf="@id/image2"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="5dp" />
 
     <Button
         android:id="@+id/btnAddPhotos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choose Photos"
-        app:layout_constraintTop_toBottomOf="@id/tvPhotos"
+        app:layout_constraintTop_toBottomOf="@id/image1"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="10dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/etLocation"
@@ -46,19 +74,19 @@
         app:layout_constraintTop_toBottomOf="@id/btnAddPhotos"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="15dp" />
 
     <EditText
         android:id="@+id/etCaption"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="100dp"
         android:hint="✍️ Write a caption..."
         android:gravity="top"
         android:inputType="textMultiLine"
         app:layout_constraintTop_toBottomOf="@id/etLocation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnStickers"
@@ -67,7 +95,7 @@
         android:text="🎨 Add Stickers"
         app:layout_constraintTop_toBottomOf="@id/etCaption"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnSaveMemory"

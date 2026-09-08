@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.EditText
+import android.content.Intent
 
 class CreateMemoryActivity : AppCompatActivity() {
 
@@ -60,6 +61,15 @@ class CreateMemoryActivity : AppCompatActivity() {
         btnAddPhotos.setOnClickListener {
             photoPicker.launch("image/*")
         }
+
+        val btnStickers = findViewById<Button>(R.id.btnStickers)
+
+        btnStickers.setOnClickListener {
+
+            val intent = Intent(this, StickerActivity::class.java)
+
+            stickerPicker.launch(intent)
+        }
     }
 
     private fun showPhotos() {
@@ -83,4 +93,25 @@ class CreateMemoryActivity : AppCompatActivity() {
             image3.visibility = View.VISIBLE
         }
     }
+
+    private val stickerPicker =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+
+            if (result.resultCode == RESULT_OK) {
+
+                val stickers =
+                    result.data?.getIntegerArrayListExtra("selectedStickers")
+
+                if (stickers != null) {
+
+                    Toast.makeText(
+                        this,
+                        "${stickers.size} sticker(s) selected",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
 }

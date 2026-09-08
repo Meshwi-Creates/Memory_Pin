@@ -25,6 +25,11 @@
             android:name=".CreateMemoryActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".StickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Memory_Pin"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

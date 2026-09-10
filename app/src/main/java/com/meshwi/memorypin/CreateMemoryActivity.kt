@@ -17,14 +17,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
 
 class CreateMemoryActivity : AppCompatActivity() {
+
+    // ---------------- PHOTOS ----------------
 
     private val selectedPhotos = ArrayList<Uri>()
 
     private lateinit var image1: ImageView
     private lateinit var image2: ImageView
     private lateinit var image3: ImageView
+
+
+    // ---------------- STICKERS ----------------
 
     private lateinit var stickerContainer: LinearLayout
     private lateinit var stickerScroll: HorizontalScrollView
@@ -48,6 +55,7 @@ class CreateMemoryActivity : AppCompatActivity() {
         R.drawable.palm,
         R.drawable.rainbow
     )
+
 
     // ---------------- PHOTO PICKER ----------------
 
@@ -79,6 +87,7 @@ class CreateMemoryActivity : AppCompatActivity() {
             }
         }
 
+
     // ---------------- STICKER PICKER ----------------
 
     private val stickerPicker =
@@ -103,6 +112,7 @@ class CreateMemoryActivity : AppCompatActivity() {
             }
         }
 
+
     // ---------------- ON CREATE ----------------
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,12 +130,19 @@ class CreateMemoryActivity : AppCompatActivity() {
         stickerScroll =
             findViewById(R.id.stickerScroll)
 
+
+        // Choose Photos
+
         val btnAddPhotos =
             findViewById<Button>(R.id.btnAddPhotos)
 
         btnAddPhotos.setOnClickListener {
+
             photoPicker.launch("image/*")
         }
+
+
+        // Add Stickers
 
         val btnStickers =
             findViewById<Button>(R.id.btnStickers)
@@ -137,6 +154,7 @@ class CreateMemoryActivity : AppCompatActivity() {
 
             stickerPicker.launch(intent)
         }
+
 
         // ---------------- CAPTION COUNTER ----------------
 
@@ -164,19 +182,23 @@ class CreateMemoryActivity : AppCompatActivity() {
                     count: Int
                 ) {
 
-                    val text = s.toString().trim()
+                    val text =
+                        s.toString().trim()
 
                     val words =
                         if (text.isEmpty()) {
                             0
                         } else {
-                            text.split("\\s+".toRegex()).size
+                            text.split(
+                                "\\s+".toRegex()
+                            ).size
                         }
 
                     tvWordCount.text =
                         "$words / 50 words"
 
                     if (words > 50) {
+
                         etCaption.error =
                             "Maximum 50 words allowed"
                     }
@@ -189,16 +211,20 @@ class CreateMemoryActivity : AppCompatActivity() {
             }
         )
 
+
         // ---------------- SAVE MEMORY ----------------
 
         val btnSaveMemory =
-            findViewById<Button>(R.id.btnSaveMemory)
+            findViewById<Button>(
+                R.id.btnSaveMemory
+            )
 
         btnSaveMemory.setOnClickListener {
 
             saveMemory()
         }
     }
+
 
     // ---------------- SHOW PHOTOS ----------------
 
@@ -208,24 +234,40 @@ class CreateMemoryActivity : AppCompatActivity() {
         image2.visibility = View.GONE
         image3.visibility = View.GONE
 
+
         if (selectedPhotos.size >= 1) {
 
-            image1.setImageURI(selectedPhotos[0])
-            image1.visibility = View.VISIBLE
+            image1.setImageURI(
+                selectedPhotos[0]
+            )
+
+            image1.visibility =
+                View.VISIBLE
         }
+
 
         if (selectedPhotos.size >= 2) {
 
-            image2.setImageURI(selectedPhotos[1])
-            image2.visibility = View.VISIBLE
+            image2.setImageURI(
+                selectedPhotos[1]
+            )
+
+            image2.visibility =
+                View.VISIBLE
         }
+
 
         if (selectedPhotos.size >= 3) {
 
-            image3.setImageURI(selectedPhotos[2])
-            image3.visibility = View.VISIBLE
+            image3.setImageURI(
+                selectedPhotos[2]
+            )
+
+            image3.visibility =
+                View.VISIBLE
         }
     }
+
 
     // ---------------- SHOW STICKERS ----------------
 
@@ -237,35 +279,40 @@ class CreateMemoryActivity : AppCompatActivity() {
 
         if (stickers.isEmpty()) {
 
-            stickerScroll.visibility = View.GONE
+            stickerScroll.visibility =
+                View.GONE
 
             return
         }
 
-        stickerScroll.visibility = View.VISIBLE
+        stickerScroll.visibility =
+            View.VISIBLE
+
 
         for (stickerId in stickers) {
 
-            val stickerNumber = when (stickerId) {
+            val stickerNumber =
+                when (stickerId) {
 
-                R.id.sticker1 -> 0
-                R.id.sticker2 -> 1
-                R.id.sticker3 -> 2
-                R.id.sticker4 -> 3
-                R.id.sticker5 -> 4
-                R.id.sticker6 -> 5
-                R.id.sticker7 -> 6
-                R.id.sticker8 -> 7
-                R.id.sticker9 -> 8
-                R.id.sticker10 -> 9
-                R.id.sticker11 -> 10
-                R.id.sticker12 -> 11
-                R.id.sticker13 -> 12
-                R.id.sticker14 -> 13
-                R.id.sticker15 -> 14
+                    R.id.sticker1 -> 0
+                    R.id.sticker2 -> 1
+                    R.id.sticker3 -> 2
+                    R.id.sticker4 -> 3
+                    R.id.sticker5 -> 4
+                    R.id.sticker6 -> 5
+                    R.id.sticker7 -> 6
+                    R.id.sticker8 -> 7
+                    R.id.sticker9 -> 8
+                    R.id.sticker10 -> 9
+                    R.id.sticker11 -> 10
+                    R.id.sticker12 -> 11
+                    R.id.sticker13 -> 12
+                    R.id.sticker14 -> 13
+                    R.id.sticker15 -> 14
 
-                else -> -1
-            }
+                    else -> -1
+                }
+
 
             if (stickerNumber != -1) {
 
@@ -273,7 +320,9 @@ class CreateMemoryActivity : AppCompatActivity() {
                     ImageView(this)
 
                 imageView.setImageResource(
-                    stickerDrawables[stickerNumber]
+                    stickerDrawables[
+                        stickerNumber
+                    ]
                 )
 
                 imageView.layoutParams =
@@ -296,21 +345,27 @@ class CreateMemoryActivity : AppCompatActivity() {
         }
     }
 
+
     // ---------------- SAVE MEMORY ----------------
 
     private fun saveMemory() {
 
         val etLocation =
-            findViewById<EditText>(R.id.etLocation)
+            findViewById<EditText>(
+                R.id.etLocation
+            )
 
         val etCaption =
-            findViewById<EditText>(R.id.etCaption)
+            findViewById<EditText>(
+                R.id.etCaption
+            )
 
         val location =
             etLocation.text.toString().trim()
 
         val caption =
             etCaption.text.toString().trim()
+
 
         // Check photos
 
@@ -325,6 +380,7 @@ class CreateMemoryActivity : AppCompatActivity() {
             return
         }
 
+
         // Check location
 
         if (location.isEmpty()) {
@@ -335,14 +391,18 @@ class CreateMemoryActivity : AppCompatActivity() {
             return
         }
 
-        // Check caption words
+
+        // Check caption
 
         val wordCount =
             if (caption.isEmpty()) {
                 0
             } else {
-                caption.split("\\s+".toRegex()).size
+                caption.split(
+                    "\\s+".toRegex()
+                ).size
             }
+
 
         if (wordCount > 50) {
 
@@ -352,17 +412,41 @@ class CreateMemoryActivity : AppCompatActivity() {
             return
         }
 
-        // Convert photo URIs to Strings
 
-        val photoList =
+        // ---------------- COPY PHOTOS ----------------
+
+        val savedPhotoPaths =
             ArrayList<String>()
 
-        for (photo in selectedPhotos) {
+        for (photoUri in selectedPhotos) {
 
-            photoList.add(photo.toString())
+            val savedPath =
+                copyPhotoToStorage(
+                    photoUri
+                )
+
+            if (savedPath != null) {
+
+                savedPhotoPaths.add(
+                    savedPath
+                )
+            }
         }
 
-        // Save everything
+
+        if (savedPhotoPaths.isEmpty()) {
+
+            Toast.makeText(
+                this,
+                "Could not save photos",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+
+        // ---------------- GET OLD MEMORIES ----------------
 
         val preferences =
             getSharedPreferences(
@@ -376,8 +460,12 @@ class CreateMemoryActivity : AppCompatActivity() {
                 "[]"
             )
 
+
         val memoriesArray =
             JSONArray(oldMemories)
+
+
+        // ---------------- CREATE MEMORY ----------------
 
         val memoryObject =
             JSONObject()
@@ -392,20 +480,22 @@ class CreateMemoryActivity : AppCompatActivity() {
             caption
         )
 
+
         // Photos
 
         val photosArray =
             JSONArray()
 
-        for (photo in photoList) {
+        for (path in savedPhotoPaths) {
 
-            photosArray.put(photo)
+            photosArray.put(path)
         }
 
         memoryObject.put(
             "photos",
             photosArray
         )
+
 
         // Stickers
 
@@ -422,9 +512,15 @@ class CreateMemoryActivity : AppCompatActivity() {
             stickersArray
         )
 
-        // Add new memory
 
-        memoriesArray.put(memoryObject)
+        // Add memory
+
+        memoriesArray.put(
+            memoryObject
+        )
+
+
+        // Save
 
         preferences.edit()
             .putString(
@@ -433,14 +529,59 @@ class CreateMemoryActivity : AppCompatActivity() {
             )
             .apply()
 
+
         Toast.makeText(
             this,
             "Memory saved! ❤️",
             Toast.LENGTH_SHORT
         ).show()
 
-        // Go back to Home
 
         finish()
+    }
+
+
+    // ---------------- COPY PHOTO TO APP STORAGE ----------------
+
+    private fun copyPhotoToStorage(
+        uri: Uri
+    ): String? {
+
+        return try {
+
+            val fileName =
+                "memory_${System.currentTimeMillis()}.jpg"
+
+            val file =
+                File(
+                    filesDir,
+                    fileName
+                )
+
+
+            val inputStream =
+                contentResolver.openInputStream(uri)
+
+            val outputStream =
+                FileOutputStream(file)
+
+
+            inputStream?.use { input ->
+
+                outputStream.use { output ->
+
+                    input.copyTo(output)
+                }
+            }
+
+
+            file.absolutePath
+
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+
+            null
+        }
     }
 }

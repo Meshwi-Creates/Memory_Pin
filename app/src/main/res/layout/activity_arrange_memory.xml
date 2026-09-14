@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F4FA">
+
+    <!-- Top title -->
+
+    <TextView
+        android:id="@+id/tvArrangeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Arrange Your Memory"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#403B43"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="18dp" />
+
+    <TextView
+        android:id="@+id/tvArrangeHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Drag anything anywhere ✨"
+        android:textSize="13sp"
+        android:textColor="#777177"
+        app:layout_constraintTop_toBottomOf="@id/tvArrangeTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="4dp" />
+
+
+    <!-- Scrapbook canvas -->
+
+    <FrameLayout
+        android:id="@+id/memoryCanvas"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFFDFC"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvArrangeHint"
+        app:layout_constraintBottom_toTopOf="@id/btnSaveArrangement"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="15dp" />
+
+
+    <!-- Save -->
+
+    <Button
+        android:id="@+id/btnSaveArrangement"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="SAVE MEMORY"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="15dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

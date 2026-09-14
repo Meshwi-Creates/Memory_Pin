@@ -14,17 +14,15 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.appcompat.app.AppCompatActivity
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.File
-import java.io.FileOutputStream
 
 class CreateMemoryActivity : AppCompatActivity() {
 
     // ---------------- PHOTOS ----------------
 
-    private val selectedPhotos = ArrayList<Uri>()
+    private val selectedPhotos =
+        ArrayList<Uri>()
 
     private lateinit var image1: ImageView
     private lateinit var image2: ImageView
@@ -36,7 +34,8 @@ class CreateMemoryActivity : AppCompatActivity() {
     private lateinit var stickerContainer: LinearLayout
     private lateinit var stickerScroll: HorizontalScrollView
 
-    private val selectedStickerIds = ArrayList<Int>()
+    private val selectedStickerIds =
+        ArrayList<Int>()
 
     private val stickerDrawables = arrayOf(
         R.drawable.map,
@@ -67,7 +66,10 @@ class CreateMemoryActivity : AppCompatActivity() {
             if (uris.size in 1..3) {
 
                 selectedPhotos.clear()
-                selectedPhotos.addAll(uris)
+
+                selectedPhotos.addAll(
+                    uris
+                )
 
                 showPhotos()
 
@@ -105,9 +107,14 @@ class CreateMemoryActivity : AppCompatActivity() {
                 if (stickers != null) {
 
                     selectedStickerIds.clear()
-                    selectedStickerIds.addAll(stickers)
 
-                    showSelectedStickers(stickers)
+                    selectedStickerIds.addAll(
+                        stickers
+                    )
+
+                    showSelectedStickers(
+                        stickers
+                    )
                 }
             }
         }
@@ -115,54 +122,94 @@ class CreateMemoryActivity : AppCompatActivity() {
 
     // ---------------- ON CREATE ----------------
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
 
-        setContentView(R.layout.activity_create_memory)
+        super.onCreate(
+            savedInstanceState
+        )
 
-        image1 = findViewById(R.id.image1)
-        image2 = findViewById(R.id.image2)
-        image3 = findViewById(R.id.image3)
+        setContentView(
+            R.layout.activity_create_memory
+        )
+
+
+        image1 =
+            findViewById(
+                R.id.image1
+            )
+
+        image2 =
+            findViewById(
+                R.id.image2
+            )
+
+        image3 =
+            findViewById(
+                R.id.image3
+            )
+
 
         stickerContainer =
-            findViewById(R.id.stickerContainer)
+            findViewById(
+                R.id.stickerContainer
+            )
 
         stickerScroll =
-            findViewById(R.id.stickerScroll)
+            findViewById(
+                R.id.stickerScroll
+            )
 
 
-        // Choose Photos
+        // ---------------- PHOTOS ----------------
 
         val btnAddPhotos =
-            findViewById<Button>(R.id.btnAddPhotos)
+            findViewById<Button>(
+                R.id.btnAddPhotos
+            )
 
         btnAddPhotos.setOnClickListener {
 
-            photoPicker.launch("image/*")
+            photoPicker.launch(
+                "image/*"
+            )
         }
 
 
-        // Add Stickers
+        // ---------------- STICKERS ----------------
 
         val btnStickers =
-            findViewById<Button>(R.id.btnStickers)
+            findViewById<Button>(
+                R.id.btnStickers
+            )
 
         btnStickers.setOnClickListener {
 
             val intent =
-                Intent(this, StickerActivity::class.java)
+                Intent(
+                    this,
+                    StickerActivity::class.java
+                )
 
-            stickerPicker.launch(intent)
+            stickerPicker.launch(
+                intent
+            )
         }
 
 
-        // ---------------- CAPTION COUNTER ----------------
+        // ---------------- CAPTION ----------------
 
         val etCaption =
-            findViewById<EditText>(R.id.etCaption)
+            findViewById<EditText>(
+                R.id.etCaption
+            )
 
         val tvWordCount =
-            findViewById<TextView>(R.id.tvWordCount)
+            findViewById<TextView>(
+                R.id.tvWordCount
+            )
+
 
         etCaption.addTextChangedListener(
             object : TextWatcher {
@@ -212,16 +259,19 @@ class CreateMemoryActivity : AppCompatActivity() {
         )
 
 
-        // ---------------- SAVE MEMORY ----------------
+        // ---------------- ARRANGE BUTTON ----------------
 
         val btnSaveMemory =
             findViewById<Button>(
                 R.id.btnSaveMemory
             )
 
+        btnSaveMemory.text =
+            "Arrange Memory"
+
         btnSaveMemory.setOnClickListener {
 
-            saveMemory()
+            openArrangeScreen()
         }
     }
 
@@ -230,9 +280,14 @@ class CreateMemoryActivity : AppCompatActivity() {
 
     private fun showPhotos() {
 
-        image1.visibility = View.GONE
-        image2.visibility = View.GONE
-        image3.visibility = View.GONE
+        image1.visibility =
+            View.GONE
+
+        image2.visibility =
+            View.GONE
+
+        image3.visibility =
+            View.GONE
 
 
         if (selectedPhotos.size >= 1) {
@@ -277,6 +332,7 @@ class CreateMemoryActivity : AppCompatActivity() {
 
         stickerContainer.removeAllViews()
 
+
         if (stickers.isEmpty()) {
 
             stickerScroll.visibility =
@@ -284,6 +340,7 @@ class CreateMemoryActivity : AppCompatActivity() {
 
             return
         }
+
 
         stickerScroll.visibility =
             View.VISIBLE
@@ -346,28 +403,29 @@ class CreateMemoryActivity : AppCompatActivity() {
     }
 
 
-    // ---------------- SAVE MEMORY ----------------
+    // ---------------- OPEN ARRANGE SCREEN ----------------
 
-    private fun saveMemory() {
+    private fun openArrangeScreen() {
 
-        val etLocation =
+        val location =
             findViewById<EditText>(
                 R.id.etLocation
             )
+                .text
+                .toString()
+                .trim()
 
-        val etCaption =
+
+        val caption =
             findViewById<EditText>(
                 R.id.etCaption
             )
-
-        val location =
-            etLocation.text.toString().trim()
-
-        val caption =
-            etCaption.text.toString().trim()
+                .text
+                .toString()
+                .trim()
 
 
-        // Check photos
+        // Photo validation
 
         if (selectedPhotos.isEmpty()) {
 
@@ -381,23 +439,28 @@ class CreateMemoryActivity : AppCompatActivity() {
         }
 
 
-        // Check location
+        // Location validation
 
         if (location.isEmpty()) {
 
-            etLocation.error =
+            findViewById<EditText>(
+                R.id.etLocation
+            ).error =
                 "Please enter a location"
 
             return
         }
 
 
-        // Check caption
+        // Caption validation
 
         val wordCount =
             if (caption.isEmpty()) {
+
                 0
+
             } else {
+
                 caption.split(
                     "\\s+".toRegex()
                 ).size
@@ -406,182 +469,63 @@ class CreateMemoryActivity : AppCompatActivity() {
 
         if (wordCount > 50) {
 
-            etCaption.error =
+            findViewById<EditText>(
+                R.id.etCaption
+            ).error =
                 "Caption cannot exceed 50 words"
 
             return
         }
 
 
-        // ---------------- COPY PHOTOS ----------------
+        // Convert photos to strings
 
-        val savedPhotoPaths =
+        val photoStrings =
             ArrayList<String>()
 
-        for (photoUri in selectedPhotos) {
+        for (photo in selectedPhotos) {
 
-            val savedPath =
-                copyPhotoToStorage(
-                    photoUri
-                )
-
-            if (savedPath != null) {
-
-                savedPhotoPaths.add(
-                    savedPath
-                )
-            }
+            photoStrings.add(
+                photo.toString()
+            )
         }
 
 
-        if (savedPhotoPaths.isEmpty()) {
+        // Open arrange screen
 
-            Toast.makeText(
+        val intent =
+            Intent(
                 this,
-                "Could not save photos",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
-        }
-
-
-        // ---------------- GET OLD MEMORIES ----------------
-
-        val preferences =
-            getSharedPreferences(
-                "MemoryPin",
-                MODE_PRIVATE
-            )
-
-        val oldMemories =
-            preferences.getString(
-                "memories",
-                "[]"
+                ArrangeMemoryActivity::class.java
             )
 
 
-        val memoriesArray =
-            JSONArray(oldMemories)
+        intent.putStringArrayListExtra(
+            "photos",
+            photoStrings
+        )
 
 
-        // ---------------- CREATE MEMORY ----------------
-
-        val memoryObject =
-            JSONObject()
-
-        memoryObject.put(
+        intent.putExtra(
             "location",
             location
         )
 
-        memoryObject.put(
+
+        intent.putExtra(
             "caption",
             caption
         )
 
 
-        // Photos
-
-        val photosArray =
-            JSONArray()
-
-        for (path in savedPhotoPaths) {
-
-            photosArray.put(path)
-        }
-
-        memoryObject.put(
-            "photos",
-            photosArray
-        )
-
-
-        // Stickers
-
-        val stickersArray =
-            JSONArray()
-
-        for (sticker in selectedStickerIds) {
-
-            stickersArray.put(sticker)
-        }
-
-        memoryObject.put(
+        intent.putIntegerArrayListExtra(
             "stickers",
-            stickersArray
+            selectedStickerIds
         )
 
 
-        // Add memory
-
-        memoriesArray.put(
-            memoryObject
+        startActivity(
+            intent
         )
-
-
-        // Save
-
-        preferences.edit()
-            .putString(
-                "memories",
-                memoriesArray.toString()
-            )
-            .apply()
-
-
-        Toast.makeText(
-            this,
-            "Memory saved! ❤️",
-            Toast.LENGTH_SHORT
-        ).show()
-
-
-        finish()
-    }
-
-
-    // ---------------- COPY PHOTO TO APP STORAGE ----------------
-
-    private fun copyPhotoToStorage(
-        uri: Uri
-    ): String? {
-
-        return try {
-
-            val fileName =
-                "memory_${System.currentTimeMillis()}.jpg"
-
-            val file =
-                File(
-                    filesDir,
-                    fileName
-                )
-
-
-            val inputStream =
-                contentResolver.openInputStream(uri)
-
-            val outputStream =
-                FileOutputStream(file)
-
-
-            inputStream?.use { input ->
-
-                outputStream.use { output ->
-
-                    input.copyTo(output)
-                }
-            }
-
-
-            file.absolutePath
-
-        } catch (e: Exception) {
-
-            e.printStackTrace()
-
-            null
-        }
     }
 }

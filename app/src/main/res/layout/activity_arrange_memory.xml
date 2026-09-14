@@ -24,7 +24,7 @@
         android:id="@+id/tvArrangeHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tap a photo to edit • Drag to move ✨"
+        android:text="Tap to select • Drag to move ✨"
         android:textSize="13sp"
         android:textColor="#777177"
         app:layout_constraintTop_toBottomOf="@id/tvArrangeTitle"
@@ -45,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="15dp" />
 
-    <!-- PHOTO CONTROLS -->
+    <!-- EDITING CONTROLS -->
 
     <LinearLayout
         android:id="@+id/photoControls"
@@ -60,28 +60,35 @@
 
         <Button
             android:id="@+id/btnPhotoSmall"
-            android:layout_width="55dp"
+            android:layout_width="52dp"
             android:layout_height="50dp"
             android:text="−"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnPhotoBig"
-            android:layout_width="55dp"
+            android:layout_width="52dp"
             android:layout_height="50dp"
             android:text="+"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnPhotoRotate"
-            android:layout_width="75dp"
+            android:layout_width="65dp"
             android:layout_height="50dp"
             android:text="↻"
             android:textSize="22sp" />
 
         <Button
+            android:id="@+id/btnEditText"
+            android:layout_width="65dp"
+            android:layout_height="50dp"
+            android:text="✏️"
+            android:textSize="18sp" />
+
+        <Button
             android:id="@+id/btnPhotoDelete"
-            android:layout_width="75dp"
+            android:layout_width="65dp"
             android:layout_height="50dp"
             android:text="🗑"
             android:textSize="18sp" />

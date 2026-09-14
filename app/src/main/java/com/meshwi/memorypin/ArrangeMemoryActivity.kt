@@ -1,13 +1,16 @@
 package com.meshwi.memorypin
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -25,8 +28,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     // Currently selected element
     private var selectedView: View? = null
 
-    // Is selected element a photo?
-    private var selectedIsPhoto = false
+    // Type of selected element
+    private var selectedType = ""
 
     private val photos =
         ArrayList<String>()
@@ -37,6 +40,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     private var location = ""
 
     private var caption = ""
+
+    private lateinit var locationTextView: TextView
+
+    private lateinit var captionTextView: TextView
 
     private val stickerDrawables = arrayOf(
         R.drawable.map,
@@ -119,12 +126,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     }
 
     // =================================================
-    // CREATE ALL ELEMENTS
+    // CREATE ELEMENTS
     // =================================================
 
     private fun createCanvasElements() {
-
-        // Photos
 
         for (i in photos.indices) {
 
@@ -134,21 +139,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             )
         }
 
-        // Location
-
         if (location.isNotEmpty()) {
 
             addLocation()
         }
 
-        // Caption
-
         if (caption.isNotEmpty()) {
 
             addCaption()
         }
-
-        // Stickers
 
         for (i in stickers.indices) {
 
@@ -185,14 +184,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         )
 
         image.translationX =
-            25f + number * 45f
+            30f + number * 45f
 
         image.translationY =
             30f + number * 45f
-
-        image.setBackgroundColor(
-            Color.WHITE
-        )
 
         image.setPadding(
             4,
@@ -201,21 +196,129 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             4
         )
 
-        image.setOnClickListener {
-
-            selectView(
-                image,
-                true
-            )
-        }
+        image.setBackgroundColor(
+            Color.WHITE
+        )
 
         makeDraggable(
             image,
-            true
+            "photo"
         )
 
         canvas.addView(
             image
+        )
+    }
+
+    // =================================================
+    // LOCATION
+    // =================================================
+
+    private fun addLocation() {
+
+        locationTextView =
+            TextView(this)
+
+        locationTextView.text =
+            "📍 $location"
+
+        locationTextView.textSize =
+            18f
+
+        locationTextView.gravity =
+            Gravity.CENTER
+
+        locationTextView.setTextColor(
+            Color.BLACK
+        )
+
+        locationTextView.setPadding(
+            15,
+            8,
+            15,
+            8
+        )
+
+        locationTextView.background =
+            createBackground(
+                Color.WHITE
+            )
+
+        locationTextView.layoutParams =
+            FrameLayout.LayoutParams(
+                220,
+                60
+            )
+
+        locationTextView.translationX =
+            30f
+
+        locationTextView.translationY =
+            270f
+
+        makeDraggable(
+            locationTextView,
+            "location"
+        )
+
+        canvas.addView(
+            locationTextView
+        )
+    }
+
+    // =================================================
+    // CAPTION
+    // =================================================
+
+    private fun addCaption() {
+
+        captionTextView =
+            TextView(this)
+
+        captionTextView.text =
+            caption
+
+        captionTextView.textSize =
+            16f
+
+        captionTextView.gravity =
+            Gravity.CENTER
+
+        captionTextView.setTextColor(
+            Color.DKGRAY
+        )
+
+        captionTextView.setPadding(
+            15,
+            10,
+            15,
+            10
+        )
+
+        captionTextView.background =
+            createBackground(
+                Color.WHITE
+            )
+
+        captionTextView.layoutParams =
+            FrameLayout.LayoutParams(
+                240,
+                100
+            )
+
+        captionTextView.translationX =
+            30f
+
+        captionTextView.translationY =
+            350f
+
+        makeDraggable(
+            captionTextView,
+            "caption"
+        )
+
+        canvas.addView(
+            captionTextView
         )
     }
 
@@ -256,14 +359,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         image.scaleType =
             ImageView.ScaleType.CENTER_INSIDE
 
-        image.translationX =
-            170f +
-                    (number % 3) * 65f
-
-        image.translationY =
-            100f +
-                    (number % 4) * 65f
-
         image.setPadding(
             4,
             4,
@@ -271,17 +366,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             4
         )
 
-        image.setOnClickListener {
+        image.translationX =
+            170f + number * 55f
 
-            selectView(
-                image,
-                false
-            )
-        }
+        image.translationY =
+            100f + number * 55f
 
         makeDraggable(
             image,
-            false
+            "sticker"
         )
 
         canvas.addView(
@@ -290,65 +383,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     }
 
     // =================================================
-    // SELECT ELEMENT
-    // =================================================
-
-    private fun selectView(
-        view: View,
-        isPhoto: Boolean
-    ) {
-
-        // Remove border from previous selection
-
-        selectedView?.background =
-            null
-
-        // Select new element
-
-        selectedView =
-            view
-
-        selectedIsPhoto =
-            isPhoto
-
-        // Add purple border
-
-        val border =
-            GradientDrawable()
-
-        border.setColor(
-            Color.TRANSPARENT
-        )
-
-        border.setStroke(
-            4,
-            Color.rgb(
-                120,
-                80,
-                180
-            )
-        )
-
-        border.cornerRadius =
-            8f
-
-        view.background =
-            border
-
-        view.bringToFront()
-    }
-
-    // =================================================
     // DRAG
     // =================================================
 
     private fun makeDraggable(
         view: View,
-        isPhoto: Boolean
+        type: String
     ) {
 
         var lastX = 0f
-
         var lastY = 0f
 
         view.setOnTouchListener {
@@ -357,7 +400,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 event ->
 
             when (
-                event.action
+                event.actionMasked
             ) {
 
                 MotionEvent.ACTION_DOWN -> {
@@ -370,7 +413,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
                     selectView(
                         v,
-                        isPhoto
+                        type
                     )
 
                     true
@@ -412,7 +455,78 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     }
 
     // =================================================
-    // CONTROLS
+    // SELECT
+    // =================================================
+
+    private fun selectView(
+        view: View,
+        type: String
+    ) {
+
+        // Remove previous border
+
+        selectedView?.let {
+
+            when (selectedType) {
+
+                "photo" -> {
+
+                    it.background =
+                        createPhotoBackground()
+                }
+
+                "location",
+                "caption" -> {
+
+                    it.background =
+                        createBackground(
+                            Color.WHITE
+                        )
+                }
+
+                "sticker" -> {
+
+                    it.background =
+                        null
+                }
+            }
+        }
+
+        selectedView =
+            view
+
+        selectedType =
+            type
+
+        // Purple selection border
+
+        val border =
+            GradientDrawable()
+
+        border.setColor(
+            Color.TRANSPARENT
+        )
+
+        border.setStroke(
+            3,
+            Color.rgb(
+                120,
+                80,
+                180
+            )
+        )
+
+        border.cornerRadius =
+            8f
+
+        view.background =
+            border
+
+        view.bringToFront()
+    }
+
+    // =================================================
+    // BUTTONS
     // =================================================
 
     private fun setupButtons() {
@@ -430,6 +544,11 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val btnRotate =
             findViewById<Button>(
                 R.id.btnPhotoRotate
+            )
+
+        val btnEdit =
+            findViewById<Button>(
+                R.id.btnEditText
             )
 
         val btnDelete =
@@ -490,6 +609,29 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                         15f
         }
 
+        // EDIT TEXT
+
+        btnEdit.setOnClickListener {
+
+            if (
+                selectedType == "caption" ||
+                selectedType == "location"
+            ) {
+
+                editTextElement(
+                    selectedType
+                )
+
+            } else {
+
+                Toast.makeText(
+                    this,
+                    "Select caption or location to edit",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         // DELETE
 
         btnDelete.setOnClickListener {
@@ -507,6 +649,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
             selectedView =
                 null
+
+            selectedType =
+                ""
         }
 
         // SAVE
@@ -515,6 +660,93 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
             saveMemory()
         }
+    }
+
+    // =================================================
+    // EDIT TEXT
+    // =================================================
+
+    private fun editTextElement(
+        type: String
+    ) {
+
+        val editText =
+            EditText(this)
+
+        if (type == "caption") {
+
+            editText.setText(
+                caption
+            )
+
+            editText.hint =
+                "Enter your caption"
+
+        } else {
+
+            editText.setText(
+                location
+            )
+
+            editText.hint =
+                "Enter location"
+        }
+
+        editText.inputType =
+            if (type == "caption") {
+
+                InputType.TYPE_CLASS_TEXT or
+                        InputType.TYPE_TEXT_FLAG_MULTI_LINE
+
+            } else {
+
+                InputType.TYPE_CLASS_TEXT
+            }
+
+        val title =
+            if (type == "caption") {
+
+                "Edit Caption"
+
+            } else {
+
+                "Edit Location"
+            }
+
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(editText)
+            .setNegativeButton(
+                "CANCEL",
+                null
+            )
+            .setPositiveButton(
+                "SAVE"
+            ) { _, _ ->
+
+                val newText =
+                    editText.text
+                        .toString()
+                        .trim()
+
+                if (type == "caption") {
+
+                    caption =
+                        newText
+
+                    captionTextView.text =
+                        newText
+
+                } else {
+
+                    location =
+                        newText
+
+                    locationTextView.text =
+                        "📍 $newText"
+                }
+            }
+            .show()
     }
 
     // =================================================
@@ -532,25 +764,49 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val params =
             view.layoutParams
 
+        val minimumSize =
+            when (selectedType) {
+
+                "photo" ->
+                    100
+
+                "sticker" ->
+                    40
+
+                "location" ->
+                    120
+
+                "caption" ->
+                    140
+
+                else ->
+                    50
+            }
+
+        val maximumSize =
+            when (selectedType) {
+
+                "photo" ->
+                    400
+
+                "sticker" ->
+                    200
+
+                "location" ->
+                    400
+
+                "caption" ->
+                    450
+
+                else ->
+                    400
+            }
+
         val newWidth =
             params.width + amount
 
         val newHeight =
             params.height + amount
-
-        val minimumSize =
-            if (selectedIsPhoto) {
-                100
-            } else {
-                40
-            }
-
-        val maximumSize =
-            if (selectedIsPhoto) {
-                400
-            } else {
-                200
-            }
 
         if (
             newWidth >= minimumSize &&
@@ -576,183 +832,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         Toast.makeText(
             this,
-            "Tap a photo or sticker first",
+            "Tap an element first",
             Toast.LENGTH_SHORT
         ).show()
-    }
-
-    // =================================================
-    // LOCATION
-    // =================================================
-
-    private fun addLocation() {
-
-        val text =
-            TextView(this)
-
-        text.text =
-            "📍 $location"
-
-        text.textSize =
-            18f
-
-        text.gravity =
-            Gravity.CENTER
-
-        text.setTextColor(
-            Color.BLACK
-        )
-
-        text.setPadding(
-            10,
-            5,
-            10,
-            5
-        )
-
-        text.background =
-            createBackground(
-                Color.WHITE
-            )
-
-        text.layoutParams =
-            FrameLayout.LayoutParams(
-                220,
-                60
-            )
-
-        text.translationX =
-            30f
-
-        text.translationY =
-            270f
-
-        makeTextDraggable(
-            text
-        )
-
-        canvas.addView(
-            text
-        )
-    }
-
-    // =================================================
-    // CAPTION
-    // =================================================
-
-    private fun addCaption() {
-
-        val text =
-            TextView(this)
-
-        text.text =
-            caption
-
-        text.textSize =
-            16f
-
-        text.gravity =
-            Gravity.CENTER
-
-        text.setTextColor(
-            Color.DKGRAY
-        )
-
-        text.setPadding(
-            10,
-            10,
-            10,
-            10
-        )
-
-        text.background =
-            createBackground(
-                Color.WHITE
-            )
-
-        text.layoutParams =
-            FrameLayout.LayoutParams(
-                240,
-                100
-            )
-
-        text.translationX =
-            30f
-
-        text.translationY =
-            350f
-
-        makeTextDraggable(
-            text
-        )
-
-        canvas.addView(
-            text
-        )
-    }
-
-    // =================================================
-    // DRAG TEXT / OTHER ELEMENTS
-    // =================================================
-
-    private fun makeTextDraggable(
-        view: View
-    ) {
-
-        var lastX = 0f
-
-        var lastY = 0f
-
-        view.setOnTouchListener {
-
-                v,
-                event ->
-
-            when (
-                event.action
-            ) {
-
-                MotionEvent.ACTION_DOWN -> {
-
-                    lastX =
-                        event.rawX
-
-                    lastY =
-                        event.rawY
-
-                    v.bringToFront()
-
-                    true
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-
-                    val dx =
-                        event.rawX -
-                                lastX
-
-                    val dy =
-                        event.rawY -
-                                lastY
-
-                    v.translationX +=
-                        dx
-
-                    v.translationY +=
-                        dy
-
-                    lastX =
-                        event.rawX
-
-                    lastY =
-                        event.rawY
-
-                    true
-                }
-
-                else -> true
-            }
-        }
     }
 
     // =================================================
@@ -777,6 +859,22 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             1,
             Color.LTGRAY
         )
+
+        return background
+    }
+
+    private fun createPhotoBackground():
+            GradientDrawable {
+
+        val background =
+            GradientDrawable()
+
+        background.setColor(
+            Color.WHITE
+        )
+
+        background.cornerRadius =
+            8f
 
         return background
     }
@@ -858,8 +956,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             caption
         )
 
-        // Save photos
-
         val photoArray =
             JSONArray()
 
@@ -882,8 +978,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             "photos",
             photoArray
         )
-
-        // Save stickers
 
         val stickerArray =
             JSONArray()

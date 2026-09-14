@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,11 +22,17 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
     private lateinit var canvas: FrameLayout
 
-    private var selectedPhoto: ImageView? = null
+    // Currently selected element
+    private var selectedView: View? = null
 
-    private val photos = ArrayList<String>()
+    // Is selected element a photo?
+    private var selectedIsPhoto = false
 
-    private val stickers = ArrayList<Int>()
+    private val photos =
+        ArrayList<String>()
+
+    private val stickers =
+        ArrayList<Int>()
 
     private var location = ""
 
@@ -66,6 +71,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 R.id.memoryCanvas
             )
 
+        // Get photos
+
         val photoList =
             intent.getStringArrayListExtra(
                 "photos"
@@ -73,18 +80,26 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         if (photoList != null) {
 
-            photos.addAll(photoList)
+            photos.addAll(
+                photoList
+            )
         }
+
+        // Get location
 
         location =
             intent.getStringExtra(
                 "location"
             ) ?: ""
 
+        // Get caption
+
         caption =
             intent.getStringExtra(
                 "caption"
             ) ?: ""
+
+        // Get stickers
 
         val stickerList =
             intent.getIntegerArrayListExtra(
@@ -93,7 +108,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         if (stickerList != null) {
 
-            stickers.addAll(stickerList)
+            stickers.addAll(
+                stickerList
+            )
         }
 
         createCanvasElements()
@@ -101,11 +118,13 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         setupButtons()
     }
 
-    // ------------------------------------------------
-    // CREATE CANVAS
-    // ------------------------------------------------
+    // =================================================
+    // CREATE ALL ELEMENTS
+    // =================================================
 
     private fun createCanvasElements() {
+
+        // Photos
 
         for (i in photos.indices) {
 
@@ -115,15 +134,21 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             )
         }
 
+        // Location
+
         if (location.isNotEmpty()) {
 
             addLocation()
         }
 
+        // Caption
+
         if (caption.isNotEmpty()) {
 
             addCaption()
         }
+
+        // Stickers
 
         for (i in stickers.indices) {
 
@@ -134,9 +159,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ------------------------------------------------
+    // =================================================
     // PHOTO
-    // ------------------------------------------------
+    // =================================================
 
     private fun addPhoto(
         photoUri: String,
@@ -146,14 +171,11 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val image =
             ImageView(this)
 
-        val params =
+        image.layoutParams =
             FrameLayout.LayoutParams(
                 180,
                 180
             )
-
-        image.layoutParams =
-            params
 
         image.scaleType =
             ImageView.ScaleType.CENTER_CROP
@@ -181,13 +203,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         image.setOnClickListener {
 
-            selectPhoto(
-                image
+            selectView(
+                image,
+                true
             )
         }
 
         makeDraggable(
-            image
+            image,
+            true
         )
 
         canvas.addView(
@@ -195,73 +219,132 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         )
     }
 
-    // ------------------------------------------------
-    // SELECT PHOTO
-    // ------------------------------------------------
+    // =================================================
+    // STICKER
+    // =================================================
 
-    private fun selectPhoto(
-        photo: ImageView
+    private fun addSticker(
+        stickerId: Int,
+        number: Int
     ) {
 
-        // Remove border from old photo
-
-        selectedPhoto?.background =
-            createPhotoBackground(
-                Color.WHITE,
-                Color.TRANSPARENT
+        val stickerNumber =
+            getStickerNumber(
+                stickerId
             )
 
-        // Select new photo
+        if (stickerNumber == -1) {
 
-        selectedPhoto =
-            photo
+            return
+        }
 
-        photo.background =
-            createPhotoBackground(
-                Color.WHITE,
-                Color.rgb(
-                    120,
-                    80,
-                    180
-                )
+        val image =
+            ImageView(this)
+
+        image.layoutParams =
+            FrameLayout.LayoutParams(
+                80,
+                80
             )
 
-        photo.bringToFront()
+        image.setImageResource(
+            stickerDrawables[
+                stickerNumber
+            ]
+        )
+
+        image.scaleType =
+            ImageView.ScaleType.CENTER_INSIDE
+
+        image.translationX =
+            170f +
+                    (number % 3) * 65f
+
+        image.translationY =
+            100f +
+                    (number % 4) * 65f
+
+        image.setPadding(
+            4,
+            4,
+            4,
+            4
+        )
+
+        image.setOnClickListener {
+
+            selectView(
+                image,
+                false
+            )
+        }
+
+        makeDraggable(
+            image,
+            false
+        )
+
+        canvas.addView(
+            image
+        )
     }
 
-    // ------------------------------------------------
-    // PHOTO BACKGROUND
-    // ------------------------------------------------
+    // =================================================
+    // SELECT ELEMENT
+    // =================================================
 
-    private fun createPhotoBackground(
-        fillColor: Int,
-        borderColor: Int
-    ): GradientDrawable {
+    private fun selectView(
+        view: View,
+        isPhoto: Boolean
+    ) {
 
-        val background =
+        // Remove border from previous selection
+
+        selectedView?.background =
+            null
+
+        // Select new element
+
+        selectedView =
+            view
+
+        selectedIsPhoto =
+            isPhoto
+
+        // Add purple border
+
+        val border =
             GradientDrawable()
 
-        background.setColor(
-            fillColor
+        border.setColor(
+            Color.TRANSPARENT
         )
 
-        background.setStroke(
-            5,
-            borderColor
+        border.setStroke(
+            4,
+            Color.rgb(
+                120,
+                80,
+                180
+            )
         )
 
-        background.cornerRadius =
+        border.cornerRadius =
             8f
 
-        return background
+        view.background =
+            border
+
+        view.bringToFront()
     }
 
-    // ------------------------------------------------
-    // DRAG PHOTO
-    // ------------------------------------------------
+    // =================================================
+    // DRAG
+    // =================================================
 
     private fun makeDraggable(
-        view: View
+        view: View,
+        isPhoto: Boolean
     ) {
 
         var lastX = 0f
@@ -285,8 +368,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     lastY =
                         event.rawY
 
-                    selectPhoto(
-                        v as ImageView
+                    selectView(
+                        v,
+                        isPhoto
                     )
 
                     true
@@ -294,19 +378,19 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_MOVE -> {
 
-                    val differenceX =
+                    val dx =
                         event.rawX -
                                 lastX
 
-                    val differenceY =
+                    val dy =
                         event.rawY -
                                 lastY
 
                     v.translationX +=
-                        differenceX
+                        dx
 
                     v.translationY +=
-                        differenceY
+                        dy
 
                     lastX =
                         event.rawX
@@ -327,9 +411,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ------------------------------------------------
-    // PHOTO CONTROLS
-    // ------------------------------------------------
+    // =================================================
+    // CONTROLS
+    // =================================================
 
     private fun setupButtons() {
 
@@ -358,59 +442,59 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 R.id.btnSaveArrangement
             )
 
-        // Smaller
+        // SMALLER
 
         btnSmall.setOnClickListener {
 
-            if (selectedPhoto == null) {
+            if (selectedView == null) {
 
                 showSelectMessage()
 
                 return@setOnClickListener
             }
 
-            resizePhoto(
-                -20
+            resizeSelected(
+                -15
             )
         }
 
-        // Bigger
+        // BIGGER
 
         btnBig.setOnClickListener {
 
-            if (selectedPhoto == null) {
+            if (selectedView == null) {
 
                 showSelectMessage()
 
                 return@setOnClickListener
             }
 
-            resizePhoto(
-                20
+            resizeSelected(
+                15
             )
         }
 
-        // Rotate
+        // ROTATE
 
         btnRotate.setOnClickListener {
 
-            if (selectedPhoto == null) {
+            if (selectedView == null) {
 
                 showSelectMessage()
 
                 return@setOnClickListener
             }
 
-            selectedPhoto?.rotation =
-                (selectedPhoto?.rotation ?: 0f) +
+            selectedView?.rotation =
+                (selectedView?.rotation ?: 0f) +
                         15f
         }
 
-        // Delete
+        // DELETE
 
         btnDelete.setOnClickListener {
 
-            if (selectedPhoto == null) {
+            if (selectedView == null) {
 
                 showSelectMessage()
 
@@ -418,14 +502,14 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             }
 
             canvas.removeView(
-                selectedPhoto
+                selectedView
             )
 
-            selectedPhoto =
+            selectedView =
                 null
         }
 
-        // Save
+        // SAVE
 
         btnSave.setOnClickListener {
 
@@ -433,20 +517,20 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ------------------------------------------------
-    // RESIZE PHOTO
-    // ------------------------------------------------
+    // =================================================
+    // RESIZE
+    // =================================================
 
-    private fun resizePhoto(
+    private fun resizeSelected(
         amount: Int
     ) {
 
-        val photo =
-            selectedPhoto
+        val view =
+            selectedView
                 ?: return
 
         val params =
-            photo.layoutParams
+            view.layoutParams
 
         val newWidth =
             params.width + amount
@@ -454,9 +538,23 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val newHeight =
             params.height + amount
 
+        val minimumSize =
+            if (selectedIsPhoto) {
+                100
+            } else {
+                40
+            }
+
+        val maximumSize =
+            if (selectedIsPhoto) {
+                400
+            } else {
+                200
+            }
+
         if (
-            newWidth >= 100 &&
-            newWidth <= 400
+            newWidth >= minimumSize &&
+            newWidth <= maximumSize
         ) {
 
             params.width =
@@ -465,27 +563,27 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             params.height =
                 newHeight
 
-            photo.layoutParams =
+            view.layoutParams =
                 params
         }
     }
 
-    // ------------------------------------------------
-    // SELECT MESSAGE
-    // ------------------------------------------------
+    // =================================================
+    // MESSAGE
+    // =================================================
 
     private fun showSelectMessage() {
 
         Toast.makeText(
             this,
-            "Tap a photo first",
+            "Tap a photo or sticker first",
             Toast.LENGTH_SHORT
         ).show()
     }
 
-    // ------------------------------------------------
+    // =================================================
     // LOCATION
-    // ------------------------------------------------
+    // =================================================
 
     private fun addLocation() {
 
@@ -538,9 +636,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         )
     }
 
-    // ------------------------------------------------
+    // =================================================
     // CAPTION
-    // ------------------------------------------------
+    // =================================================
 
     private fun addCaption() {
 
@@ -593,60 +691,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         )
     }
 
-    // ------------------------------------------------
-    // STICKER
-    // ------------------------------------------------
-
-    private fun addSticker(
-        stickerId: Int,
-        number: Int
-    ) {
-
-        val stickerNumber =
-            getStickerNumber(
-                stickerId
-            )
-
-        if (stickerNumber == -1) {
-
-            return
-        }
-
-        val image =
-            ImageView(this)
-
-        image.layoutParams =
-            FrameLayout.LayoutParams(
-                80,
-                80
-            )
-
-        image.setImageResource(
-            stickerDrawables[
-                stickerNumber
-            ]
-        )
-
-        image.translationX =
-            180f +
-                    number * 50f
-
-        image.translationY =
-            100f +
-                    number * 50f
-
-        makeTextDraggable(
-            image
-        )
-
-        canvas.addView(
-            image
-        )
-    }
-
-    // ------------------------------------------------
-    // DRAG OTHER ELEMENTS
-    // ------------------------------------------------
+    // =================================================
+    // DRAG TEXT / OTHER ELEMENTS
+    // =================================================
 
     private fun makeTextDraggable(
         view: View
@@ -708,9 +755,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ------------------------------------------------
+    // =================================================
     // BACKGROUND
-    // ------------------------------------------------
+    // =================================================
 
     private fun createBackground(
         color: Int
@@ -734,9 +781,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         return background
     }
 
-    // ------------------------------------------------
+    // =================================================
     // STICKER NUMBER
-    // ------------------------------------------------
+    // =================================================
 
     private fun getStickerNumber(
         stickerId: Int
@@ -764,9 +811,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ------------------------------------------------
-    // SAVE MEMORY
-    // ------------------------------------------------
+    // =================================================
+    // SAVE
+    // =================================================
 
     private fun saveMemory() {
 
@@ -811,6 +858,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             caption
         )
 
+        // Save photos
+
         val photoArray =
             JSONArray()
 
@@ -833,6 +882,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             "photos",
             photoArray
         )
+
+        // Save stickers
 
         val stickerArray =
             JSONArray()
@@ -869,9 +920,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         finishAffinity()
     }
 
-    // ------------------------------------------------
+    // =================================================
     // COPY PHOTO
-    // ------------------------------------------------
+    // =================================================
 
     private fun copyPhotoToStorage(
         uri: Uri

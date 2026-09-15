@@ -1,12 +1,13 @@
 package com.meshwi.memorypin
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
-import android.view.ViewGroup
+import android.view.View
 import android.widget.Button
+import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -17,37 +18,27 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var memoryContainer: LinearLayout
+    private lateinit var memoryContainer: GridLayout
     private lateinit var tvEmpty: TextView
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(
-            R.layout.activity_main
-        )
+        setContentView(R.layout.activity_main)
 
         memoryContainer =
-            findViewById(
-                R.id.memoryContainer
-            )
+            findViewById(R.id.memoryContainer)
 
         tvEmpty =
-            findViewById(
-                R.id.tvEmpty
-            )
+            findViewById(R.id.tvEmpty)
 
         val btnCreateMemory =
-            findViewById<Button>(
-                R.id.btnCreateMemory
-            )
+            findViewById<Button>(R.id.btnCreateMemory)
 
         btnCreateMemory.setOnClickListener {
 
             val intent =
-                android.content.Intent(
+                Intent(
                     this,
                     CreateMemoryActivity::class.java
                 )
@@ -84,18 +75,15 @@ class MainActivity : AppCompatActivity() {
         if (memories.length() == 0) {
 
             tvEmpty.visibility =
-                TextView.VISIBLE
+                View.VISIBLE
 
             return
         }
 
         tvEmpty.visibility =
-            TextView.GONE
+            View.GONE
 
-        // Newest memory first
-        for (
-        i in 0 until memories.length()
-        ) {
+        for (i in 0 until memories.length()) {
 
             val memory =
                 memories.getJSONObject(i)
@@ -108,6 +96,10 @@ class MainActivity : AppCompatActivity() {
         memory: JSONObject
     ) {
 
+        // -----------------------------------------
+        // CARD
+        // -----------------------------------------
+
         val card =
             LinearLayout(this)
 
@@ -115,34 +107,43 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.VERTICAL
 
         card.setPadding(
-            dpToPx(10),
-            dpToPx(10),
-            dpToPx(10),
-            dpToPx(10)
+            dpToPx(3),
+            dpToPx(3),
+            dpToPx(3),
+            dpToPx(3)
         )
 
         card.background =
             createCardBackground()
 
         val cardParams =
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            GridLayout.LayoutParams().apply {
 
-        cardParams.setMargins(
-            0,
-            dpToPx(8),
-            0,
-            dpToPx(16)
-        )
+                width = 0
+
+                height =
+                    GridLayout.LayoutParams.WRAP_CONTENT
+
+                columnSpec =
+                    GridLayout.spec(
+                        GridLayout.UNDEFINED,
+                        1f
+                    )
+
+                setMargins(
+                    dpToPx(3),
+                    dpToPx(4),
+                    dpToPx(3),
+                    dpToPx(8)
+                )
+            }
 
         card.layoutParams =
             cardParams
 
-        // ---------------------------------------------
+        // -----------------------------------------
         // EXACT SCRAPBOOK PREVIEW
-        // ---------------------------------------------
+        // -----------------------------------------
 
         val previewPath =
             memory.optString(
@@ -165,7 +166,13 @@ class MainActivity : AppCompatActivity() {
 
             preview.setImageBitmap(bitmap)
 
-            // Keep exact scrapbook proportions
+            /*
+             * Do NOT give the ImageView a fixed height.
+             *
+             * The ImageView calculates its height from
+             * the original scrapbook image ratio.
+             */
+
             preview.scaleType =
                 ImageView.ScaleType.FIT_CENTER
 
@@ -178,8 +185,8 @@ class MainActivity : AppCompatActivity() {
 
             val imageParams =
                 LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 )
 
             preview.layoutParams =
@@ -188,10 +195,6 @@ class MainActivity : AppCompatActivity() {
             card.addView(preview)
 
         } else {
-
-            // -----------------------------------------
-            // OLD MEMORY FALLBACK
-            // -----------------------------------------
 
             addOldMemoryPreview(
                 card,
@@ -202,32 +205,30 @@ class MainActivity : AppCompatActivity() {
         memoryContainer.addView(card)
     }
 
+    // ---------------------------------------------
+    // OLD MEMORY FALLBACK
+    // ---------------------------------------------
+
     private fun addOldMemoryPreview(
         card: LinearLayout,
         memory: JSONObject
     ) {
 
         val elements =
-            memory.optJSONArray(
-                "elements"
-            )
+            memory.optJSONArray("elements")
 
-        var firstPhotoPath =
-            ""
+        var firstPhotoPath = ""
 
         if (elements != null) {
 
-            for (
-            i in 0 until elements.length()
-            ) {
+            for (i in 0 until elements.length()) {
 
                 val element =
                     elements.getJSONObject(i)
 
                 if (
-                    element.optString(
-                        "type"
-                    ) == "photo"
+                    element.optString("type")
+                    == "photo"
                 ) {
 
                     firstPhotoPath =
@@ -260,8 +261,8 @@ class MainActivity : AppCompatActivity() {
 
             val params =
                 LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    dpToPx(180)
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(100)
                 )
 
             image.layoutParams =
@@ -285,17 +286,10 @@ class MainActivity : AppCompatActivity() {
                 "📍 $location"
 
             locationText.textSize =
-                16f
+                11f
 
             locationText.setTextColor(
                 Color.DKGRAY
-            )
-
-            locationText.setPadding(
-                0,
-                dpToPx(5),
-                0,
-                dpToPx(3)
             )
 
             card.addView(
@@ -318,7 +312,7 @@ class MainActivity : AppCompatActivity() {
                 caption
 
             captionText.textSize =
-                14f
+                10f
 
             captionText.setTextColor(
                 Color.DKGRAY
@@ -329,6 +323,10 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
+    // ---------------------------------------------
+    // CARD BACKGROUND
+    // ---------------------------------------------
 
     private fun createCardBackground():
             GradientDrawable {
@@ -344,7 +342,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             cornerRadius =
-                dpToPx(18).toFloat()
+                dpToPx(12).toFloat()
 
             setStroke(
                 dpToPx(1),
@@ -357,9 +355,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun dpToPx(
-        dp: Int
-    ): Int {
+    // ---------------------------------------------
+    // DP TO PX
+    // ---------------------------------------------
+
+    private fun dpToPx(dp: Int): Int {
 
         return (
                 dp *

@@ -17,7 +17,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -61,26 +60,36 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val stickerId: Int = -1
     )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_arrange_memory)
 
-        memoryCanvas = findViewById(R.id.memoryCanvas)
+        setContentView(
+            R.layout.activity_arrange_memory
+        )
+
+        memoryCanvas =
+            findViewById(R.id.memoryCanvas)
 
         val photos =
-            intent.getStringArrayListExtra("photos") ?: arrayListOf()
+            intent.getStringArrayListExtra("photos")
+                ?: arrayListOf()
 
         val location =
-            intent.getStringExtra("location") ?: ""
+            intent.getStringExtra("location")
+                ?: ""
 
         val caption =
-            intent.getStringExtra("caption") ?: ""
+            intent.getStringExtra("caption")
+                ?: ""
 
         val stickers =
             intent.getIntegerArrayListExtra("stickers")
                 ?: arrayListOf()
 
         memoryCanvas.post {
+
             createMemoryCanvas(
                 photos,
                 location,
@@ -92,9 +101,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         setupButtons()
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // CREATE SCRAPBOOK
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun createMemoryCanvas(
         photos: ArrayList<String>,
@@ -105,63 +114,145 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         memoryCanvas.removeAllViews()
 
-        // Add photos
-        for (i in photos.indices) {
+        val canvasWidth =
+            memoryCanvas.width
 
-            val imageView = ImageView(this)
+        val canvasHeight =
+            memoryCanvas.height
 
-            imageView.setImageURI(Uri.parse(photos[i]))
+        // ------------------------------------------------
+        // PHOTO SIZE BASED ON ACTUAL CANVAS
+        // ------------------------------------------------
 
-            // VERY IMPORTANT:
-            // keeps original photo proportions
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+        val sidePadding =
+            dpToPx(12)
 
-            imageView.setPadding(5, 5, 5, 5)
+        val gap =
+            dpToPx(8)
 
-            imageView.background =
-                createPhotoBackground()
+        val availableWidth =
+            canvasWidth - (sidePadding * 2)
 
-            val size = dpToPx(150)
+        // ------------------------------------------------
+        // 1 PHOTO
+        // ------------------------------------------------
 
-            val params =
-                FrameLayout.LayoutParams(
-                    size,
-                    size
+        if (photos.size == 1) {
+
+            val photoSize =
+                min(
+                    (availableWidth * 0.72f).toInt(),
+                    dpToPx(250)
                 )
 
-            when (i) {
-                0 -> {
-                    params.leftMargin = dpToPx(20)
-                    params.topMargin = dpToPx(30)
-                }
-
-                1 -> {
-                    params.leftMargin = dpToPx(150)
-                    params.topMargin = dpToPx(110)
-                }
-
-                2 -> {
-                    params.leftMargin = dpToPx(70)
-                    params.topMargin = dpToPx(260)
-                }
-            }
-
-            memoryCanvas.addView(
-                imageView,
-                params
+            addPhoto(
+                photos[0],
+                photoSize,
+                photoSize,
+                (canvasWidth - photoSize) / 2,
+                dpToPx(100)
             )
-
-            imageView.tag =
-                ElementTag(
-                    type = "photo",
-                    photoUri = photos[i]
-                )
-
-            makeDraggable(imageView)
-            selectView(imageView, "photo")
         }
 
-        // Add location
+        // ------------------------------------------------
+        // 2 PHOTOS
+        // ------------------------------------------------
+
+        else if (photos.size == 2) {
+
+            val photoWidth =
+                ((availableWidth - gap) * 0.47f)
+                    .toInt()
+
+            val photoHeight =
+                min(
+                    photoWidth,
+                    dpToPx(210)
+                )
+
+            val totalWidth =
+                photoWidth * 2 + gap
+
+            val startLeft =
+                (canvasWidth - totalWidth) / 2
+
+            addPhoto(
+                photos[0],
+                photoWidth,
+                photoHeight,
+                startLeft,
+                dpToPx(105)
+            )
+
+            addPhoto(
+                photos[1],
+                photoWidth,
+                photoHeight,
+                startLeft + photoWidth + gap,
+                dpToPx(145)
+            )
+        }
+
+        // ------------------------------------------------
+        // 3 PHOTOS
+        // ------------------------------------------------
+
+        else {
+
+            val photoWidth =
+                ((availableWidth - gap) * 0.47f)
+                    .toInt()
+
+            val photoHeight =
+                min(
+                    photoWidth,
+                    dpToPx(170)
+                )
+
+            val totalWidth =
+                photoWidth * 2 + gap
+
+            val startLeft =
+                (canvasWidth - totalWidth) / 2
+
+            // First photo
+            addPhoto(
+                photos[0],
+                photoWidth,
+                photoHeight,
+                startLeft,
+                dpToPx(85)
+            )
+
+            // Second photo
+            addPhoto(
+                photos[1],
+                photoWidth,
+                photoHeight,
+                startLeft + photoWidth + gap,
+                dpToPx(115)
+            )
+
+            // Third photo
+            val thirdWidth =
+                min(
+                    dpToPx(175),
+                    availableWidth
+                )
+
+            addPhoto(
+                photos[2],
+                thirdWidth,
+                thirdWidth,
+                (canvasWidth - thirdWidth) / 2,
+                dpToPx(270)
+            )
+        }
+
+        // ------------------------------------------------
+        // LOCATION
+        // ------------------------------------------------
+
         if (location.isNotEmpty()) {
 
             val locationView =
@@ -170,16 +261,18 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             locationView.text =
                 "📍 $location"
 
-            locationView.textSize = 18f
+            locationView.textSize =
+                17f
+
             locationView.setTextColor(
                 Color.rgb(60, 55, 63)
             )
 
             locationView.setPadding(
-                dpToPx(8),
-                dpToPx(5),
-                dpToPx(8),
-                dpToPx(5)
+                dpToPx(7),
+                dpToPx(4),
+                dpToPx(7),
+                dpToPx(4)
             )
 
             locationView.background =
@@ -191,8 +284,11 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
 
-            params.leftMargin = dpToPx(15)
-            params.topMargin = dpToPx(10)
+            params.leftMargin =
+                dpToPx(12)
+
+            params.topMargin =
+                dpToPx(12)
 
             memoryCanvas.addView(
                 locationView,
@@ -205,43 +301,62 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 )
 
             makeDraggable(locationView)
-            selectView(locationView, "location")
+
+            selectView(
+                locationView,
+                "location"
+            )
         }
 
-        // Add caption
+        // ------------------------------------------------
+        // CAPTION
+        // ------------------------------------------------
+
         if (caption.isNotEmpty()) {
 
             val captionView =
                 TextView(this)
 
-            captionView.text = caption
+            captionView.text =
+                caption
 
-            captionView.textSize = 16f
+            captionView.textSize =
+                15f
+
             captionView.setTextColor(
                 Color.rgb(70, 65, 72)
             )
 
             captionView.setPadding(
-                dpToPx(10),
                 dpToPx(8),
-                dpToPx(10),
-                dpToPx(8)
+                dpToPx(6),
+                dpToPx(8),
+                dpToPx(6)
             )
 
-            captionView.maxWidth =
-                dpToPx(300)
+            captionView.maxLines =
+                4
 
             captionView.background =
                 createTextBackground()
 
+            val captionWidth =
+                min(
+                    dpToPx(290),
+                    availableWidth - dpToPx(10)
+                )
+
             val params =
                 FrameLayout.LayoutParams(
-                    dpToPx(300),
+                    captionWidth,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
 
-            params.leftMargin = dpToPx(25)
-            params.topMargin = dpToPx(410)
+            params.leftMargin =
+                (canvasWidth - captionWidth) / 2
+
+            params.topMargin =
+                canvasHeight - dpToPx(75)
 
             memoryCanvas.addView(
                 captionView,
@@ -254,14 +369,26 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 )
 
             makeDraggable(captionView)
-            selectView(captionView, "caption")
+
+            selectView(
+                captionView,
+                "caption"
+            )
         }
 
-        // Add stickers
-        for (stickerId in stickers) {
+        // ------------------------------------------------
+        // STICKERS
+        // ------------------------------------------------
+
+        for (i in stickers.indices) {
+
+            val stickerId =
+                stickers[i]
 
             val stickerNumber =
-                getStickerNumber(stickerId)
+                getStickerNumber(
+                    stickerId
+                )
 
             if (stickerNumber == -1) {
                 continue
@@ -277,22 +404,67 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             sticker.scaleType =
                 ImageView.ScaleType.FIT_CENTER
 
-            val size = dpToPx(75)
+            val stickerSize =
+                dpToPx(58)
 
             val params =
                 FrameLayout.LayoutParams(
-                    size,
-                    size
+                    stickerSize,
+                    stickerSize
                 )
 
+            // Spread stickers around the canvas
+            val positions =
+                arrayOf(
+                    Pair(
+                        dpToPx(10),
+                        dpToPx(70)
+                    ),
+                    Pair(
+                        canvasWidth - dpToPx(70),
+                        dpToPx(65)
+                    ),
+                    Pair(
+                        dpToPx(15),
+                        canvasHeight - dpToPx(130)
+                    ),
+                    Pair(
+                        canvasWidth - dpToPx(75),
+                        canvasHeight - dpToPx(145)
+                    ),
+                    Pair(
+                        canvasWidth / 2 - dpToPx(30),
+                        dpToPx(45)
+                    ),
+                    Pair(
+                        dpToPx(5),
+                        canvasHeight / 2
+                    ),
+                    Pair(
+                        canvasWidth - dpToPx(65),
+                        canvasHeight / 2
+                    ),
+                    Pair(
+                        canvasWidth / 2 - dpToPx(30),
+                        canvasHeight - dpToPx(130)
+                    )
+                )
+
+            val position =
+                positions[
+                    i % positions.size
+                ]
+
             params.leftMargin =
-                dpToPx(
-                    20 + (stickerNumber * 35) % 250
+                max(
+                    0,
+                    position.first
                 )
 
             params.topMargin =
-                dpToPx(
-                    80 + (stickerNumber * 55) % 350
+                max(
+                    0,
+                    position.second
                 )
 
             memoryCanvas.addView(
@@ -307,15 +479,93 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 )
 
             makeDraggable(sticker)
-            selectView(sticker, "sticker")
+
+            selectView(
+                sticker,
+                "sticker"
+            )
         }
     }
 
-    // ----------------------------------------------------
-    // DRAG
-    // ----------------------------------------------------
+    // ====================================================
+    // ADD PHOTO
+    // ====================================================
 
-    private fun makeDraggable(view: View) {
+    private fun addPhoto(
+        photoUri: String,
+        width: Int,
+        height: Int,
+        left: Int,
+        top: Int
+    ) {
+
+        val imageView =
+            ImageView(this)
+
+        imageView.setImageURI(
+            Uri.parse(photoUri)
+        )
+
+        // Keeps the photo looking natural
+        imageView.scaleType =
+            ImageView.ScaleType.CENTER_CROP
+
+        imageView.setPadding(
+            dpToPx(4),
+            dpToPx(4),
+            dpToPx(4),
+            dpToPx(4)
+        )
+
+        imageView.background =
+            createPhotoBackground()
+
+        val params =
+            FrameLayout.LayoutParams(
+                width,
+                height
+            )
+
+        params.leftMargin =
+            max(
+                0,
+                left
+            )
+
+        params.topMargin =
+            max(
+                0,
+                top
+            )
+
+        memoryCanvas.addView(
+            imageView,
+            params
+        )
+
+        imageView.tag =
+            ElementTag(
+                type = "photo",
+                photoUri = photoUri
+            )
+
+        makeDraggable(
+            imageView
+        )
+
+        selectView(
+            imageView,
+            "photo"
+        )
+    }
+
+    // ====================================================
+    // DRAG
+    // ====================================================
+
+    private fun makeDraggable(
+        view: View
+    ) {
 
         view.setOnTouchListener { v, event ->
 
@@ -328,11 +578,17 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                         getViewType(v)
                     )
 
-                    startX = event.rawX
-                    startY = event.rawY
+                    startX =
+                        event.rawX
 
-                    startViewX = v.x
-                    startViewY = v.y
+                    startY =
+                        event.rawY
+
+                    startViewX =
+                        v.x
+
+                    startViewY =
+                        v.y
 
                     v.bringToFront()
 
@@ -353,33 +609,48 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     var newY =
                         startViewY + dy
 
-                    // Keep the object INSIDE the canvas
+                    // Keep everything inside canvas
                     val maxX =
                         max(
                             0f,
-                            (memoryCanvas.width - v.width).toFloat()
+                            (
+                                    memoryCanvas.width -
+                                            v.width
+                                    ).toFloat()
                         )
 
                     val maxY =
                         max(
                             0f,
-                            (memoryCanvas.height - v.height).toFloat()
+                            (
+                                    memoryCanvas.height -
+                                            v.height
+                                    ).toFloat()
                         )
 
                     newX =
                         min(
                             maxX,
-                            max(0f, newX)
+                            max(
+                                0f,
+                                newX
+                            )
                         )
 
                     newY =
                         min(
                             maxY,
-                            max(0f, newY)
+                            max(
+                                0f,
+                                newY
+                            )
                         )
 
-                    v.x = newX
-                    v.y = newY
+                    v.x =
+                        newX
+
+                    v.y =
+                        newY
 
                     true
                 }
@@ -393,9 +664,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // SELECT
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun selectView(
         view: View,
@@ -403,7 +674,12 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     ) {
 
         selectedView?.background =
-            when (getViewType(selectedView)) {
+            when (
+                getViewType(
+                    selectedView
+                )
+            ) {
+
                 "photo" ->
                     createPhotoBackground()
 
@@ -415,36 +691,53 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     null
             }
 
-        selectedView = view
-        selectedType = type
+        selectedView =
+            view
+
+        selectedType =
+            type
 
         view.background =
-            createSelectedBackground(type)
+            createSelectedBackground(
+                type
+            )
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // BUTTONS
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun setupButtons() {
 
         val small =
-            findViewById<Button>(R.id.btnPhotoSmall)
+            findViewById<Button>(
+                R.id.btnPhotoSmall
+            )
 
         val big =
-            findViewById<Button>(R.id.btnPhotoBig)
+            findViewById<Button>(
+                R.id.btnPhotoBig
+            )
 
         val rotate =
-            findViewById<Button>(R.id.btnPhotoRotate)
+            findViewById<Button>(
+                R.id.btnPhotoRotate
+            )
 
         val edit =
-            findViewById<Button>(R.id.btnEditText)
+            findViewById<Button>(
+                R.id.btnEditText
+            )
 
         val delete =
-            findViewById<Button>(R.id.btnPhotoDelete)
+            findViewById<Button>(
+                R.id.btnPhotoDelete
+            )
 
         val save =
-            findViewById<Button>(R.id.btnSaveArrangement)
+            findViewById<Button>(
+                R.id.btnSaveArrangement
+            )
 
         small.setOnClickListener {
             resizeSelected(-20)
@@ -455,7 +748,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
 
         rotate.setOnClickListener {
+
             selectedView?.let {
+
                 it.rotation += 15f
             }
         }
@@ -466,6 +761,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 selectedType == "caption" ||
                 selectedType == "location"
             ) {
+
                 editSelectedText()
             }
         }
@@ -474,10 +770,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
             selectedView?.let {
 
-                memoryCanvas.removeView(it)
+                memoryCanvas.removeView(
+                    it
+                )
 
-                selectedView = null
-                selectedType = ""
+                selectedView =
+                    null
+
+                selectedType =
+                    ""
 
                 Toast.makeText(
                     this,
@@ -488,19 +789,22 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
 
         save.setOnClickListener {
+
             saveMemory()
         }
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // RESIZE
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun resizeSelected(
         amount: Int
     ) {
 
-        val view = selectedView ?: return
+        val view =
+            selectedView
+                ?: return
 
         val params =
             view.layoutParams
@@ -508,31 +812,38 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val newWidth =
             max(
                 dpToPx(40),
-                view.width + dpToPx(amount)
+                view.width +
+                        dpToPx(amount)
             )
 
         val newHeight =
             when (selectedType) {
 
                 "photo",
-                "sticker" -> newWidth
+                "sticker" ->
+                    newWidth
 
                 else ->
                     max(
                         dpToPx(30),
-                        view.height + dpToPx(amount)
+                        view.height +
+                                dpToPx(amount)
                     )
             }
 
-        params.width = newWidth
-        params.height = newHeight
+        params.width =
+            newWidth
 
-        view.layoutParams = params
+        params.height =
+            newHeight
+
+        view.layoutParams =
+            params
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // EDIT TEXT
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun editSelectedText() {
 
@@ -545,7 +856,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         input.setText(
             view.text.toString()
-                .replace("📍 ", "")
+                .replace(
+                    "📍 ",
+                    ""
+                )
         )
 
         input.setSelection(
@@ -554,18 +868,29 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle(
-                if (selectedType == "location")
+                if (
+                    selectedType ==
+                    "location"
+                ) {
                     "Edit Location"
-                else
+                } else {
                     "Edit Caption"
+                }
             )
             .setView(input)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(
+                "Save"
+            ) { _, _ ->
 
                 val newText =
-                    input.text.toString().trim()
+                    input.text
+                        .toString()
+                        .trim()
 
-                if (selectedType == "location") {
+                if (
+                    selectedType ==
+                    "location"
+                ) {
 
                     view.text =
                         "📍 $newText"
@@ -583,15 +908,17 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             .show()
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // SAVE MEMORY
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun saveMemory() {
 
-        if (memoryCanvas.width <= 0 ||
+        if (
+            memoryCanvas.width <= 0 ||
             memoryCanvas.height <= 0
         ) {
+
             Toast.makeText(
                 this,
                 "Please wait and try again",
@@ -604,14 +931,18 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val timestamp =
             System.currentTimeMillis()
 
-        // Remove selection border before screenshot
+        // Remove selected border
         val oldSelected =
             selectedView
 
         if (oldSelected != null) {
 
             oldSelected.background =
-                when (getViewType(oldSelected)) {
+                when (
+                    getViewType(
+                        oldSelected
+                    )
+                ) {
 
                     "photo" ->
                         createPhotoBackground()
@@ -625,7 +956,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 }
         }
 
-        // Create exact screenshot of scrapbook
+        // ------------------------------------------------
+        // CREATE EXACT SCRAPBOOK IMAGE
+        // ------------------------------------------------
+
         val bitmap =
             Bitmap.createBitmap(
                 memoryCanvas.width,
@@ -636,18 +970,25 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val canvas =
             Canvas(bitmap)
 
-        memoryCanvas.draw(canvas)
+        memoryCanvas.draw(
+            canvas
+        )
 
-        // Put selection border back
+        // Restore selection
         if (oldSelected != null) {
 
             oldSelected.background =
                 createSelectedBackground(
-                    getViewType(oldSelected)
+                    getViewType(
+                        oldSelected
+                    )
                 )
         }
 
-        // Save scrapbook preview
+        // ------------------------------------------------
+        // SAVE PREVIEW
+        // ------------------------------------------------
+
         val previewFile =
             File(
                 filesDir,
@@ -678,14 +1019,17 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             return
         }
 
-        // ---------------------------------------------
-        // Save element information
-        // ---------------------------------------------
+        // ------------------------------------------------
+        // SAVE ELEMENT DATA
+        // ------------------------------------------------
 
         val elements =
             JSONArray()
 
-        for (i in 0 until memoryCanvas.childCount) {
+        for (
+        i in 0 until
+                memoryCanvas.childCount
+        ) {
 
             val view =
                 memoryCanvas.getChildAt(i)
@@ -727,7 +1071,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 view.rotation
             )
 
-            if (tag.type == "photo") {
+            if (
+                tag.type ==
+                "photo"
+            ) {
 
                 val savedPhoto =
                     copyPhotoToInternalStorage(
@@ -742,7 +1089,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 )
             }
 
-            if (tag.type == "sticker") {
+            if (
+                tag.type ==
+                "sticker"
+            ) {
 
                 element.put(
                     "stickerId",
@@ -751,8 +1101,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             }
 
             if (
-                tag.type == "caption" ||
-                tag.type == "location"
+                tag.type ==
+                "caption" ||
+                tag.type ==
+                "location"
             ) {
 
                 val textView =
@@ -760,17 +1112,20 @@ class ArrangeMemoryActivity : AppCompatActivity() {
 
                 element.put(
                     "text",
-                    textView?.text?.toString()
+                    textView?.text
+                        ?.toString()
                         ?: ""
                 )
             }
 
-            elements.put(element)
+            elements.put(
+                element
+            )
         }
 
-        // ---------------------------------------------
-        // Main memory JSON
-        // ---------------------------------------------
+        // ------------------------------------------------
+        // SAVE MEMORY
+        // ------------------------------------------------
 
         val preferences =
             getSharedPreferences(
@@ -817,9 +1172,14 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val newMemories =
             JSONArray()
 
-        newMemories.put(memory)
+        newMemories.put(
+            memory
+        )
 
-        for (i in 0 until oldMemories.length()) {
+        for (
+        i in 0 until oldMemories.length()
+        ) {
+
             newMemories.put(
                 oldMemories.getJSONObject(i)
             )
@@ -842,9 +1202,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         finish()
     }
 
-    // ----------------------------------------------------
+    // ====================================================
     // COPY PHOTO
-    // ----------------------------------------------------
+    // ====================================================
 
     private fun copyPhotoToInternalStorage(
         uriString: String,
@@ -855,9 +1215,12 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         try {
 
             val input =
-                contentResolver.openInputStream(
-                    Uri.parse(uriString)
-                )
+                contentResolver
+                    .openInputStream(
+                        Uri.parse(
+                            uriString
+                        )
+                    )
 
             if (input != null) {
 
@@ -867,9 +1230,13 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                         "memory_photo_${timestamp}_$index.jpg"
                     )
 
-                FileOutputStream(file).use { output ->
+                FileOutputStream(
+                    file
+                ).use { output ->
 
-                    input.copyTo(output)
+                    input.copyTo(
+                        output
+                    )
                 }
 
                 input.close()
@@ -878,20 +1245,23 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             }
 
         } catch (e: Exception) {
+
             e.printStackTrace()
         }
 
         return ""
     }
 
-    // ----------------------------------------------------
-    // GET LOCATION
-    // ----------------------------------------------------
+    // ====================================================
+    // LOCATION
+    // ====================================================
 
-    private fun getLocationFromCanvas(): String {
+    private fun getLocationFromCanvas():
+            String {
 
         for (
-        i in 0 until memoryCanvas.childCount
+        i in 0 until
+                memoryCanvas.childCount
         ) {
 
             val view =
@@ -901,12 +1271,19 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 view.tag as? ElementTag
                     ?: continue
 
-            if (tag.type == "location") {
+            if (
+                tag.type ==
+                "location"
+            ) {
 
                 return (
                         view as? TextView
-                        )?.text?.toString()
-                    ?.replace("📍 ", "")
+                        )?.text
+                    ?.toString()
+                    ?.replace(
+                        "📍 ",
+                        ""
+                    )
                     ?.trim()
                     ?: ""
             }
@@ -915,14 +1292,16 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         return ""
     }
 
-    // ----------------------------------------------------
-    // GET CAPTION
-    // ----------------------------------------------------
+    // ====================================================
+    // CAPTION
+    // ====================================================
 
-    private fun getCaptionFromCanvas(): String {
+    private fun getCaptionFromCanvas():
+            String {
 
         for (
-        i in 0 until memoryCanvas.childCount
+        i in 0 until
+                memoryCanvas.childCount
         ) {
 
             val view =
@@ -932,11 +1311,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 view.tag as? ElementTag
                     ?: continue
 
-            if (tag.type == "caption") {
+            if (
+                tag.type ==
+                "caption"
+            ) {
 
                 return (
                         view as? TextView
-                        )?.text?.toString()
+                        )?.text
+                    ?.toString()
                     ?.trim()
                     ?: ""
             }
@@ -945,9 +1328,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         return ""
     }
 
-    // ----------------------------------------------------
-    // HELPERS
-    // ----------------------------------------------------
+    // ====================================================
+    // GET VIEW TYPE
+    // ====================================================
 
     private fun getViewType(
         view: View?
@@ -956,8 +1339,13 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val tag =
             view?.tag as? ElementTag
 
-        return tag?.type ?: ""
+        return tag?.type
+            ?: ""
     }
+
+    // ====================================================
+    // STICKER NUMBER
+    // ====================================================
 
     private fun getStickerNumber(
         stickerId: Int
@@ -985,12 +1373,18 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
+    // ====================================================
+    // PHOTO BACKGROUND
+    // ====================================================
+
     private fun createPhotoBackground():
             GradientDrawable {
 
         return GradientDrawable().apply {
 
-            setColor(Color.WHITE)
+            setColor(
+                Color.WHITE
+            )
 
             cornerRadius =
                 dpToPx(8).toFloat()
@@ -1001,6 +1395,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             )
         }
     }
+
+    // ====================================================
+    // TEXT BACKGROUND
+    // ====================================================
 
     private fun createTextBackground():
             GradientDrawable {
@@ -1020,6 +1418,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 dpToPx(10).toFloat()
         }
     }
+
+    // ====================================================
+    // SELECTED BACKGROUND
+    // ====================================================
 
     private fun createSelectedBackground(
         type: String
@@ -1045,13 +1447,19 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
+    // ====================================================
+    // DP TO PX
+    // ====================================================
+
     private fun dpToPx(
         dp: Int
     ): Int {
 
         return (
                 dp *
-                        resources.displayMetrics.density
+                        resources
+                            .displayMetrics
+                            .density
                 ).toInt()
     }
 }

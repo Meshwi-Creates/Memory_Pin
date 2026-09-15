@@ -120,10 +120,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val canvasHeight =
             memoryCanvas.height
 
-        // ------------------------------------------------
-        // PHOTO SIZE BASED ON ACTUAL CANVAS
-        // ------------------------------------------------
-
         val sidePadding =
             dpToPx(12)
 
@@ -197,7 +193,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         // 3 PHOTOS
         // ------------------------------------------------
 
-        else {
+        else if (photos.size >= 3) {
 
             val photoWidth =
                 ((availableWidth - gap) * 0.47f)
@@ -215,7 +211,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             val startLeft =
                 (canvasWidth - totalWidth) / 2
 
-            // First photo
             addPhoto(
                 photos[0],
                 photoWidth,
@@ -224,7 +219,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 dpToPx(85)
             )
 
-            // Second photo
             addPhoto(
                 photos[1],
                 photoWidth,
@@ -233,7 +227,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 dpToPx(115)
             )
 
-            // Third photo
             val thirdWidth =
                 min(
                     dpToPx(175),
@@ -268,6 +261,10 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 Color.rgb(60, 55, 63)
             )
 
+            locationView.setSingleLine(false)
+
+            locationView.maxLines = 5
+
             locationView.setPadding(
                 dpToPx(7),
                 dpToPx(4),
@@ -278,9 +275,15 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             locationView.background =
                 createTextBackground()
 
+            val locationWidth =
+                min(
+                    dpToPx(180),
+                    availableWidth - dpToPx(10)
+                )
+
             val params =
                 FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    locationWidth,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
 
@@ -300,7 +303,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     type = "location"
                 )
 
-            makeDraggable(locationView)
+            makeDraggable(
+                locationView
+            )
 
             selectView(
                 locationView,
@@ -327,6 +332,14 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 Color.rgb(70, 65, 72)
             )
 
+            captionView.setSingleLine(false)
+
+            captionView.maxLines =
+                20
+
+            captionView.ellipsize =
+                null
+
             captionView.setPadding(
                 dpToPx(8),
                 dpToPx(6),
@@ -334,15 +347,12 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 dpToPx(6)
             )
 
-            captionView.maxLines =
-                4
-
             captionView.background =
                 createTextBackground()
 
             val captionWidth =
                 min(
-                    dpToPx(290),
+                    dpToPx(220),
                     availableWidth - dpToPx(10)
                 )
 
@@ -356,7 +366,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 (canvasWidth - captionWidth) / 2
 
             params.topMargin =
-                canvasHeight - dpToPx(75)
+                canvasHeight - dpToPx(100)
 
             memoryCanvas.addView(
                 captionView,
@@ -368,7 +378,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     type = "caption"
                 )
 
-            makeDraggable(captionView)
+            makeDraggable(
+                captionView
+            )
 
             selectView(
                 captionView,
@@ -413,7 +425,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     stickerSize
                 )
 
-            // Spread stickers around the canvas
             val positions =
                 arrayOf(
                     Pair(
@@ -478,7 +489,9 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     stickerId = stickerId
                 )
 
-            makeDraggable(sticker)
+            makeDraggable(
+                sticker
+            )
 
             selectView(
                 sticker,
@@ -506,7 +519,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             Uri.parse(photoUri)
         )
 
-        // Keeps the photo looking natural
         imageView.scaleType =
             ImageView.ScaleType.CENTER_CROP
 
@@ -609,7 +621,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     var newY =
                         startViewY + dy
 
-                    // Keep everything inside canvas
                     val maxX =
                         max(
                             0f,
@@ -740,10 +751,12 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             )
 
         small.setOnClickListener {
+
             resizeSelected(-20)
         }
 
         big.setOnClickListener {
+
             resizeSelected(20)
         }
 
@@ -805,6 +818,195 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val view =
             selectedView
                 ?: return
+
+        // =================================================
+        // TEXT RESIZE
+        // =================================================
+
+        if (
+            selectedType == "caption" ||
+            selectedType == "location"
+        ) {
+
+            val textView =
+                view as? TextView
+                    ?: return
+
+            val density =
+                resources
+                    .displayMetrics
+                    .scaledDensity
+
+            val currentSize =
+                textView.textSize /
+                        density
+
+            val newSize =
+                max(
+                    8f,
+                    min(
+                        40f,
+                        currentSize +
+                                if (amount > 0) {
+                                    2f
+                                } else {
+                                    -2f
+                                }
+                    )
+                )
+
+            // Change font size
+            textView.textSize =
+                newSize
+
+            textView.setSingleLine(
+                false
+            )
+
+            textView.ellipsize =
+                null
+
+            if (
+                selectedType ==
+                "caption"
+            ) {
+
+                textView.maxLines =
+                    20
+
+            } else {
+
+                textView.maxLines =
+                    5
+            }
+
+            // =================================================
+            // IMPORTANT:
+            // GROW WIDTH
+            // =================================================
+
+            val currentWidth =
+                textView.width
+
+            val widthChange =
+                if (amount > 0) {
+                    dpToPx(20)
+                } else {
+                    -dpToPx(20)
+                }
+
+            val minimumWidth =
+                dpToPx(100)
+
+            val maximumWidth =
+                memoryCanvas.width -
+                        dpToPx(10)
+
+            var newWidth =
+                currentWidth +
+                        widthChange
+
+            newWidth =
+                max(
+                    minimumWidth,
+                    min(
+                        maximumWidth,
+                        newWidth
+                    )
+                )
+
+            // =================================================
+            // SET NEW WIDTH
+            // =================================================
+
+            val params =
+                textView.layoutParams
+
+            params.width =
+                newWidth
+
+            // Height MUST be automatic
+            params.height =
+                ViewGroup.LayoutParams.WRAP_CONTENT
+
+            textView.layoutParams =
+                params
+
+            // =================================================
+            // FORCE ANDROID TO MEASURE AGAIN
+            // =================================================
+
+            textView.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    newWidth,
+                    View.MeasureSpec.EXACTLY
+                ),
+                View.MeasureSpec.makeMeasureSpec(
+                    0,
+                    View.MeasureSpec.UNSPECIFIED
+                )
+            )
+
+            val newHeight =
+                textView.measuredHeight
+
+            params.height =
+                newHeight
+
+            textView.layoutParams =
+                params
+
+            // =================================================
+            // KEEP INSIDE CANVAS
+            // =================================================
+
+            textView.post {
+
+                val maxX =
+                    max(
+                        0f,
+                        (
+                                memoryCanvas.width -
+                                        textView.width
+                                ).toFloat()
+                    )
+
+                val maxY =
+                    max(
+                        0f,
+                        (
+                                memoryCanvas.height -
+                                        textView.height
+                                ).toFloat()
+                    )
+
+                textView.x =
+                    min(
+                        maxX,
+                        max(
+                            0f,
+                            textView.x
+                        )
+                    )
+
+                textView.y =
+                    min(
+                        maxY,
+                        max(
+                            0f,
+                            textView.y
+                        )
+                    )
+
+                textView.requestLayout()
+            }
+
+            return
+        }
+
+        // =================================================
+        // PHOTO / STICKER RESIZE
+        // =================================================
 
         val params =
             view.layoutParams
@@ -900,6 +1102,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                     view.text =
                         newText
                 }
+
+                view.requestLayout()
             }
             .setNegativeButton(
                 "Cancel",
@@ -931,7 +1135,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         val timestamp =
             System.currentTimeMillis()
 
-        // Remove selected border
         val oldSelected =
             selectedView
 
@@ -957,7 +1160,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
 
         // ------------------------------------------------
-        // CREATE EXACT SCRAPBOOK IMAGE
+        // CREATE SCRAPBOOK IMAGE
         // ------------------------------------------------
 
         val bitmap =
@@ -974,7 +1177,6 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             canvas
         )
 
-        // Restore selection
         if (oldSelected != null) {
 
             oldSelected.background =
@@ -1101,10 +1303,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
             }
 
             if (
-                tag.type ==
-                "caption" ||
-                tag.type ==
-                "location"
+                tag.type == "caption" ||
+                tag.type == "location"
             ) {
 
                 val textView =
@@ -1116,6 +1316,12 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                         ?.toString()
                         ?: ""
                 )
+
+                element.put(
+                    "textSize",
+                    textView?.textSize
+                        ?: 0f
+                )
             }
 
             elements.put(
@@ -1124,7 +1330,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
 
         // ------------------------------------------------
-        // SAVE MEMORY
+        // SAVE MEMORY JSON
         // ------------------------------------------------
 
         val preferences =
@@ -1177,7 +1383,8 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         )
 
         for (
-        i in 0 until oldMemories.length()
+        i in 0 until
+                oldMemories.length()
         ) {
 
             newMemories.put(
@@ -1253,7 +1460,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     }
 
     // ====================================================
-    // LOCATION
+    // GET LOCATION
     // ====================================================
 
     private fun getLocationFromCanvas():
@@ -1293,7 +1500,7 @@ class ArrangeMemoryActivity : AppCompatActivity() {
     }
 
     // ====================================================
-    // CAPTION
+    // GET CAPTION
     // ====================================================
 
     private fun getCaptionFromCanvas():

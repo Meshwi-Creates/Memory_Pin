@@ -2,166 +2,261 @@
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FCF5FC"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:orientation="vertical"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="35dp">
 
-        <!-- Title -->
+        <!-- ================= HEADER ================= -->
 
         <TextView
-            android:id="@+id/tvCreateMemory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Memory"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:text="Create a Memory"
+            android:textColor="#403B43"
+            android:textSize="27sp"
+            android:textStyle="bold" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Save a little piece of your journey ✨"
+            android:textColor="#777177"
+            android:textSize="14sp" />
 
-        <!-- Photos -->
+        <View
+            android:layout_width="42dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="12dp"
+            android:background="#D8C9DC" />
 
-        <ImageView
-            android:id="@+id/image1"
-            android:layout_width="0dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tvCreateMemory"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/image2"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="5dp" />
+        <!-- ================= PHOTOS ================= -->
 
-        <ImageView
-            android:id="@+id/image2"
-            android:layout_width="0dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@id/image1"
-            app:layout_constraintStart_toEndOf="@id/image1"
-            app:layout_constraintEnd_toStartOf="@id/image3"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="📷  Photos"
+            android:textColor="#403B43"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/image3"
-            android:layout_width="0dp"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@id/image1"
-            app:layout_constraintStart_toEndOf="@id/image2"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginStart="5dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Add 1 to 3 photos from your trip"
+            android:textColor="#777177"
+            android:textSize="13sp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="105dp"
+            android:layout_marginTop="9dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/image1"
+                android:layout_width="0dp"
+                android:layout_height="105dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="#EDE6EE"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image2"
+                android:layout_width="0dp"
+                android:layout_height="105dp"
+                android:layout_weight="1"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="#EDE6EE"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image3"
+                android:layout_width="0dp"
+                android:layout_height="105dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="#EDE6EE"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnAddPhotos"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#5D5363"
+            android:text="+  Add Photos"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- ================= LOCATION ================= -->
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose Photos"
-            app:layout_constraintTop_toBottomOf="@id/image1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp" />
-
-
-        <!-- Location -->
+            android:layout_marginTop="18dp"
+            android:text="📍  Location"
+            android:textColor="#403B43"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etLocation"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#B9AABD"
+            android:hint="Where did you go?"
+            android:inputType="textCapSentences"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textColor="#403B43"
+            android:textColorHint="#9A929C"
+            android:textSize="15sp" />
+
+        <!-- ================= CAPTION ================= -->
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="📍 Location"
-            android:inputType="text"
-            app:layout_constraintTop_toBottomOf="@id/btnAddPhotos"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="15dp" />
-
-
-        <!-- Caption -->
+            android:layout_marginTop="18dp"
+            android:text="✍️  Caption"
+            android:textColor="#403B43"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etCaption"
-            android:layout_width="0dp"
-            android:layout_height="120dp"
-            android:hint="✍️ Write your memory..."
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            app:layout_constraintTop_toBottomOf="@id/etLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp" />
-
-
-        <!-- Word Count -->
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#B9AABD"
+            android:gravity="top|start"
+            android:hint="Write something about this memory..."
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="5"
+            android:padding="12dp"
+            android:textColor="#403B43"
+            android:textColorHint="#9A929C"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tvWordCount"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:gravity="end"
             android:text="0 / 50 words"
-            android:textSize="13sp"
-            app:layout_constraintTop_toBottomOf="@id/etCaption"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="5dp" />
+            android:textColor="#777177"
+            android:textSize="12sp" />
 
+        <!-- ================= STICKERS ================= -->
 
-        <!-- Stickers Button -->
-
-        <Button
-            android:id="@+id/btnStickers"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🎨 Add Stickers"
-            app:layout_constraintTop_toBottomOf="@id/tvWordCount"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="15dp"
+            android:text="✨  Stickers"
+            android:textColor="#403B43"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-
-        <!-- Selected Stickers -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Add up to 8 stickers to decorate your memory"
+            android:textColor="#777177"
+            android:textSize="13sp" />
 
         <HorizontalScrollView
             android:id="@+id/stickerScroll"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/btnStickers"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="8dp"
+            android:background="#FFFDFC"
+            android:padding="4dp"
+            android:scrollbars="none"
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/stickerContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical" />
 
         </HorizontalScrollView>
 
+        <Button
+            android:id="@+id/btnStickers"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#E8DDEB"
+            android:text="✨  Choose Stickers"
+            android:textAllCaps="false"
+            android:textColor="#403B43"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-        <!-- Save Button -->
+        <!-- ================= ARRANGE ================= -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="17dp"
+            android:text="🎨  Make it yours"
+            android:textColor="#403B43"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Arrange your photos, stickers and text freely"
+            android:textColor="#777177"
+            android:textSize="13sp" />
 
         <Button
             android:id="@+id/btnSaveMemory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Save Memory"
-            app:layout_constraintTop_toBottomOf="@id/stickerScroll"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="20dp" />
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#5D5363"
+            android:text="Arrange Memory  →"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </ScrollView>

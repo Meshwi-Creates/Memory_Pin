@@ -1,14 +1,15 @@
 package com.meshwi.memorypin
 
 import android.app.AlertDialog
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.text.InputType
-import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -16,34 +17,25 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.max
+import kotlin.math.min
 
 class ArrangeMemoryActivity : AppCompatActivity() {
 
-    private lateinit var canvas: FrameLayout
+    private lateinit var memoryCanvas: FrameLayout
 
-    // Currently selected element
     private var selectedView: View? = null
-
-    // Type of selected element
     private var selectedType = ""
 
-    private val photos =
-        ArrayList<String>()
-
-    private val stickers =
-        ArrayList<Int>()
-
-    private var location = ""
-
-    private var caption = ""
-
-    private lateinit var locationTextView: TextView
-
-    private lateinit var captionTextView: TextView
+    private var startX = 0f
+    private var startY = 0f
+    private var startViewX = 0f
+    private var startViewY = 0f
 
     private val stickerDrawables = arrayOf(
         R.drawable.map,
@@ -63,358 +55,286 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         R.drawable.rainbow
     )
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    data class ElementTag(
+        val type: String,
+        val photoUri: String = "",
+        val stickerId: Int = -1
+    )
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_arrange_memory)
 
-        setContentView(
-            R.layout.activity_arrange_memory
-        )
+        memoryCanvas = findViewById(R.id.memoryCanvas)
 
-        canvas =
-            findViewById(
-                R.id.memoryCanvas
-            )
+        val photos =
+            intent.getStringArrayListExtra("photos") ?: arrayListOf()
 
-        // Get photos
+        val location =
+            intent.getStringExtra("location") ?: ""
 
-        val photoList =
-            intent.getStringArrayListExtra(
-                "photos"
-            )
+        val caption =
+            intent.getStringExtra("caption") ?: ""
 
-        if (photoList != null) {
+        val stickers =
+            intent.getIntegerArrayListExtra("stickers")
+                ?: arrayListOf()
 
-            photos.addAll(
-                photoList
-            )
-        }
-
-        // Get location
-
-        location =
-            intent.getStringExtra(
-                "location"
-            ) ?: ""
-
-        // Get caption
-
-        caption =
-            intent.getStringExtra(
-                "caption"
-            ) ?: ""
-
-        // Get stickers
-
-        val stickerList =
-            intent.getIntegerArrayListExtra(
-                "stickers"
-            )
-
-        if (stickerList != null) {
-
-            stickers.addAll(
-                stickerList
+        memoryCanvas.post {
+            createMemoryCanvas(
+                photos,
+                location,
+                caption,
+                stickers
             )
         }
-
-        createCanvasElements()
 
         setupButtons()
     }
 
-    // =================================================
-    // CREATE ELEMENTS
-    // =================================================
+    // ----------------------------------------------------
+    // CREATE SCRAPBOOK
+    // ----------------------------------------------------
 
-    private fun createCanvasElements() {
+    private fun createMemoryCanvas(
+        photos: ArrayList<String>,
+        location: String,
+        caption: String,
+        stickers: ArrayList<Int>
+    ) {
 
+        memoryCanvas.removeAllViews()
+
+        // Add photos
         for (i in photos.indices) {
 
-            addPhoto(
-                photos[i],
-                i
+            val imageView = ImageView(this)
+
+            imageView.setImageURI(Uri.parse(photos[i]))
+
+            // VERY IMPORTANT:
+            // keeps original photo proportions
+            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+
+            imageView.setPadding(5, 5, 5, 5)
+
+            imageView.background =
+                createPhotoBackground()
+
+            val size = dpToPx(150)
+
+            val params =
+                FrameLayout.LayoutParams(
+                    size,
+                    size
+                )
+
+            when (i) {
+                0 -> {
+                    params.leftMargin = dpToPx(20)
+                    params.topMargin = dpToPx(30)
+                }
+
+                1 -> {
+                    params.leftMargin = dpToPx(150)
+                    params.topMargin = dpToPx(110)
+                }
+
+                2 -> {
+                    params.leftMargin = dpToPx(70)
+                    params.topMargin = dpToPx(260)
+                }
+            }
+
+            memoryCanvas.addView(
+                imageView,
+                params
             )
+
+            imageView.tag =
+                ElementTag(
+                    type = "photo",
+                    photoUri = photos[i]
+                )
+
+            makeDraggable(imageView)
+            selectView(imageView, "photo")
         }
 
+        // Add location
         if (location.isNotEmpty()) {
 
-            addLocation()
+            val locationView =
+                TextView(this)
+
+            locationView.text =
+                "📍 $location"
+
+            locationView.textSize = 18f
+            locationView.setTextColor(
+                Color.rgb(60, 55, 63)
+            )
+
+            locationView.setPadding(
+                dpToPx(8),
+                dpToPx(5),
+                dpToPx(8),
+                dpToPx(5)
+            )
+
+            locationView.background =
+                createTextBackground()
+
+            val params =
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+
+            params.leftMargin = dpToPx(15)
+            params.topMargin = dpToPx(10)
+
+            memoryCanvas.addView(
+                locationView,
+                params
+            )
+
+            locationView.tag =
+                ElementTag(
+                    type = "location"
+                )
+
+            makeDraggable(locationView)
+            selectView(locationView, "location")
         }
 
+        // Add caption
         if (caption.isNotEmpty()) {
 
-            addCaption()
+            val captionView =
+                TextView(this)
+
+            captionView.text = caption
+
+            captionView.textSize = 16f
+            captionView.setTextColor(
+                Color.rgb(70, 65, 72)
+            )
+
+            captionView.setPadding(
+                dpToPx(10),
+                dpToPx(8),
+                dpToPx(10),
+                dpToPx(8)
+            )
+
+            captionView.maxWidth =
+                dpToPx(300)
+
+            captionView.background =
+                createTextBackground()
+
+            val params =
+                FrameLayout.LayoutParams(
+                    dpToPx(300),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+
+            params.leftMargin = dpToPx(25)
+            params.topMargin = dpToPx(410)
+
+            memoryCanvas.addView(
+                captionView,
+                params
+            )
+
+            captionView.tag =
+                ElementTag(
+                    type = "caption"
+                )
+
+            makeDraggable(captionView)
+            selectView(captionView, "caption")
         }
 
-        for (i in stickers.indices) {
+        // Add stickers
+        for (stickerId in stickers) {
 
-            addSticker(
-                stickers[i],
-                i
+            val stickerNumber =
+                getStickerNumber(stickerId)
+
+            if (stickerNumber == -1) {
+                continue
+            }
+
+            val sticker =
+                ImageView(this)
+
+            sticker.setImageResource(
+                stickerDrawables[stickerNumber]
             )
+
+            sticker.scaleType =
+                ImageView.ScaleType.FIT_CENTER
+
+            val size = dpToPx(75)
+
+            val params =
+                FrameLayout.LayoutParams(
+                    size,
+                    size
+                )
+
+            params.leftMargin =
+                dpToPx(
+                    20 + (stickerNumber * 35) % 250
+                )
+
+            params.topMargin =
+                dpToPx(
+                    80 + (stickerNumber * 55) % 350
+                )
+
+            memoryCanvas.addView(
+                sticker,
+                params
+            )
+
+            sticker.tag =
+                ElementTag(
+                    type = "sticker",
+                    stickerId = stickerId
+                )
+
+            makeDraggable(sticker)
+            selectView(sticker, "sticker")
         }
     }
 
-    // =================================================
-    // PHOTO
-    // =================================================
-
-    private fun addPhoto(
-        photoUri: String,
-        number: Int
-    ) {
-
-        val image =
-            ImageView(this)
-
-        image.layoutParams =
-            FrameLayout.LayoutParams(
-                180,
-                180
-            )
-
-        image.scaleType =
-            ImageView.ScaleType.CENTER_CROP
-
-        image.setImageURI(
-            Uri.parse(photoUri)
-        )
-
-        image.translationX =
-            30f + number * 45f
-
-        image.translationY =
-            30f + number * 45f
-
-        image.setPadding(
-            4,
-            4,
-            4,
-            4
-        )
-
-        image.setBackgroundColor(
-            Color.WHITE
-        )
-
-        makeDraggable(
-            image,
-            "photo"
-        )
-
-        canvas.addView(
-            image
-        )
-    }
-
-    // =================================================
-    // LOCATION
-    // =================================================
-
-    private fun addLocation() {
-
-        locationTextView =
-            TextView(this)
-
-        locationTextView.text =
-            "📍 $location"
-
-        locationTextView.textSize =
-            18f
-
-        locationTextView.gravity =
-            Gravity.CENTER
-
-        locationTextView.setTextColor(
-            Color.BLACK
-        )
-
-        locationTextView.setPadding(
-            15,
-            8,
-            15,
-            8
-        )
-
-        locationTextView.background =
-            createBackground(
-                Color.WHITE
-            )
-
-        locationTextView.layoutParams =
-            FrameLayout.LayoutParams(
-                220,
-                60
-            )
-
-        locationTextView.translationX =
-            30f
-
-        locationTextView.translationY =
-            270f
-
-        makeDraggable(
-            locationTextView,
-            "location"
-        )
-
-        canvas.addView(
-            locationTextView
-        )
-    }
-
-    // =================================================
-    // CAPTION
-    // =================================================
-
-    private fun addCaption() {
-
-        captionTextView =
-            TextView(this)
-
-        captionTextView.text =
-            caption
-
-        captionTextView.textSize =
-            16f
-
-        captionTextView.gravity =
-            Gravity.CENTER
-
-        captionTextView.setTextColor(
-            Color.DKGRAY
-        )
-
-        captionTextView.setPadding(
-            15,
-            10,
-            15,
-            10
-        )
-
-        captionTextView.background =
-            createBackground(
-                Color.WHITE
-            )
-
-        captionTextView.layoutParams =
-            FrameLayout.LayoutParams(
-                240,
-                100
-            )
-
-        captionTextView.translationX =
-            30f
-
-        captionTextView.translationY =
-            350f
-
-        makeDraggable(
-            captionTextView,
-            "caption"
-        )
-
-        canvas.addView(
-            captionTextView
-        )
-    }
-
-    // =================================================
-    // STICKER
-    // =================================================
-
-    private fun addSticker(
-        stickerId: Int,
-        number: Int
-    ) {
-
-        val stickerNumber =
-            getStickerNumber(
-                stickerId
-            )
-
-        if (stickerNumber == -1) {
-
-            return
-        }
-
-        val image =
-            ImageView(this)
-
-        image.layoutParams =
-            FrameLayout.LayoutParams(
-                80,
-                80
-            )
-
-        image.setImageResource(
-            stickerDrawables[
-                stickerNumber
-            ]
-        )
-
-        image.scaleType =
-            ImageView.ScaleType.CENTER_INSIDE
-
-        image.setPadding(
-            4,
-            4,
-            4,
-            4
-        )
-
-        image.translationX =
-            170f + number * 55f
-
-        image.translationY =
-            100f + number * 55f
-
-        makeDraggable(
-            image,
-            "sticker"
-        )
-
-        canvas.addView(
-            image
-        )
-    }
-
-    // =================================================
+    // ----------------------------------------------------
     // DRAG
-    // =================================================
+    // ----------------------------------------------------
 
-    private fun makeDraggable(
-        view: View,
-        type: String
-    ) {
+    private fun makeDraggable(view: View) {
 
-        var lastX = 0f
-        var lastY = 0f
+        view.setOnTouchListener { v, event ->
 
-        view.setOnTouchListener {
-
-                v,
-                event ->
-
-            when (
-                event.actionMasked
-            ) {
+            when (event.actionMasked) {
 
                 MotionEvent.ACTION_DOWN -> {
 
-                    lastX =
-                        event.rawX
-
-                    lastY =
-                        event.rawY
-
                     selectView(
                         v,
-                        type
+                        getViewType(v)
                     )
+
+                    startX = event.rawX
+                    startY = event.rawY
+
+                    startViewX = v.x
+                    startViewY = v.y
+
+                    v.bringToFront()
 
                     true
                 }
@@ -422,30 +342,49 @@ class ArrangeMemoryActivity : AppCompatActivity() {
                 MotionEvent.ACTION_MOVE -> {
 
                     val dx =
-                        event.rawX -
-                                lastX
+                        event.rawX - startX
 
                     val dy =
-                        event.rawY -
-                                lastY
+                        event.rawY - startY
 
-                    v.translationX +=
-                        dx
+                    var newX =
+                        startViewX + dx
 
-                    v.translationY +=
-                        dy
+                    var newY =
+                        startViewY + dy
 
-                    lastX =
-                        event.rawX
+                    // Keep the object INSIDE the canvas
+                    val maxX =
+                        max(
+                            0f,
+                            (memoryCanvas.width - v.width).toFloat()
+                        )
 
-                    lastY =
-                        event.rawY
+                    val maxY =
+                        max(
+                            0f,
+                            (memoryCanvas.height - v.height).toFloat()
+                        )
+
+                    newX =
+                        min(
+                            maxX,
+                            max(0f, newX)
+                        )
+
+                    newY =
+                        min(
+                            maxY,
+                            max(0f, newY)
+                        )
+
+                    v.x = newX
+                    v.y = newY
 
                     true
                 }
 
                 MotionEvent.ACTION_UP -> {
-
                     true
                 }
 
@@ -454,434 +393,571 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // =================================================
+    // ----------------------------------------------------
     // SELECT
-    // =================================================
+    // ----------------------------------------------------
 
     private fun selectView(
         view: View,
         type: String
     ) {
 
-        // Remove previous border
-
-        selectedView?.let {
-
-            when (selectedType) {
-
-                "photo" -> {
-
-                    it.background =
-                        createPhotoBackground()
-                }
+        selectedView?.background =
+            when (getViewType(selectedView)) {
+                "photo" ->
+                    createPhotoBackground()
 
                 "location",
-                "caption" -> {
+                "caption" ->
+                    createTextBackground()
 
-                    it.background =
-                        createBackground(
-                            Color.WHITE
-                        )
-                }
-
-                "sticker" -> {
-
-                    it.background =
-                        null
-                }
+                else ->
+                    null
             }
-        }
 
-        selectedView =
-            view
-
-        selectedType =
-            type
-
-        // Purple selection border
-
-        val border =
-            GradientDrawable()
-
-        border.setColor(
-            Color.TRANSPARENT
-        )
-
-        border.setStroke(
-            3,
-            Color.rgb(
-                120,
-                80,
-                180
-            )
-        )
-
-        border.cornerRadius =
-            8f
+        selectedView = view
+        selectedType = type
 
         view.background =
-            border
-
-        view.bringToFront()
+            createSelectedBackground(type)
     }
 
-    // =================================================
+    // ----------------------------------------------------
     // BUTTONS
-    // =================================================
+    // ----------------------------------------------------
 
     private fun setupButtons() {
 
-        val btnSmall =
-            findViewById<Button>(
-                R.id.btnPhotoSmall
-            )
+        val small =
+            findViewById<Button>(R.id.btnPhotoSmall)
 
-        val btnBig =
-            findViewById<Button>(
-                R.id.btnPhotoBig
-            )
+        val big =
+            findViewById<Button>(R.id.btnPhotoBig)
 
-        val btnRotate =
-            findViewById<Button>(
-                R.id.btnPhotoRotate
-            )
+        val rotate =
+            findViewById<Button>(R.id.btnPhotoRotate)
 
-        val btnEdit =
-            findViewById<Button>(
-                R.id.btnEditText
-            )
+        val edit =
+            findViewById<Button>(R.id.btnEditText)
 
-        val btnDelete =
-            findViewById<Button>(
-                R.id.btnPhotoDelete
-            )
+        val delete =
+            findViewById<Button>(R.id.btnPhotoDelete)
 
-        val btnSave =
-            findViewById<Button>(
-                R.id.btnSaveArrangement
-            )
+        val save =
+            findViewById<Button>(R.id.btnSaveArrangement)
 
-        // SMALLER
-
-        btnSmall.setOnClickListener {
-
-            if (selectedView == null) {
-
-                showSelectMessage()
-
-                return@setOnClickListener
-            }
-
-            resizeSelected(
-                -15
-            )
+        small.setOnClickListener {
+            resizeSelected(-20)
         }
 
-        // BIGGER
-
-        btnBig.setOnClickListener {
-
-            if (selectedView == null) {
-
-                showSelectMessage()
-
-                return@setOnClickListener
-            }
-
-            resizeSelected(
-                15
-            )
+        big.setOnClickListener {
+            resizeSelected(20)
         }
 
-        // ROTATE
-
-        btnRotate.setOnClickListener {
-
-            if (selectedView == null) {
-
-                showSelectMessage()
-
-                return@setOnClickListener
+        rotate.setOnClickListener {
+            selectedView?.let {
+                it.rotation += 15f
             }
-
-            selectedView?.rotation =
-                (selectedView?.rotation ?: 0f) +
-                        15f
         }
 
-        // EDIT TEXT
-
-        btnEdit.setOnClickListener {
+        edit.setOnClickListener {
 
             if (
                 selectedType == "caption" ||
                 selectedType == "location"
             ) {
+                editSelectedText()
+            }
+        }
 
-                editTextElement(
-                    selectedType
-                )
+        delete.setOnClickListener {
 
-            } else {
+            selectedView?.let {
+
+                memoryCanvas.removeView(it)
+
+                selectedView = null
+                selectedType = ""
 
                 Toast.makeText(
                     this,
-                    "Select caption or location to edit",
+                    "Element deleted",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         }
 
-        // DELETE
-
-        btnDelete.setOnClickListener {
-
-            if (selectedView == null) {
-
-                showSelectMessage()
-
-                return@setOnClickListener
-            }
-
-            canvas.removeView(
-                selectedView
-            )
-
-            selectedView =
-                null
-
-            selectedType =
-                ""
-        }
-
-        // SAVE
-
-        btnSave.setOnClickListener {
-
+        save.setOnClickListener {
             saveMemory()
         }
     }
 
-    // =================================================
-    // EDIT TEXT
-    // =================================================
-
-    private fun editTextElement(
-        type: String
-    ) {
-
-        val editText =
-            EditText(this)
-
-        if (type == "caption") {
-
-            editText.setText(
-                caption
-            )
-
-            editText.hint =
-                "Enter your caption"
-
-        } else {
-
-            editText.setText(
-                location
-            )
-
-            editText.hint =
-                "Enter location"
-        }
-
-        editText.inputType =
-            if (type == "caption") {
-
-                InputType.TYPE_CLASS_TEXT or
-                        InputType.TYPE_TEXT_FLAG_MULTI_LINE
-
-            } else {
-
-                InputType.TYPE_CLASS_TEXT
-            }
-
-        val title =
-            if (type == "caption") {
-
-                "Edit Caption"
-
-            } else {
-
-                "Edit Location"
-            }
-
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(editText)
-            .setNegativeButton(
-                "CANCEL",
-                null
-            )
-            .setPositiveButton(
-                "SAVE"
-            ) { _, _ ->
-
-                val newText =
-                    editText.text
-                        .toString()
-                        .trim()
-
-                if (type == "caption") {
-
-                    caption =
-                        newText
-
-                    captionTextView.text =
-                        newText
-
-                } else {
-
-                    location =
-                        newText
-
-                    locationTextView.text =
-                        "📍 $newText"
-                }
-            }
-            .show()
-    }
-
-    // =================================================
+    // ----------------------------------------------------
     // RESIZE
-    // =================================================
+    // ----------------------------------------------------
 
     private fun resizeSelected(
         amount: Int
     ) {
 
-        val view =
-            selectedView
-                ?: return
+        val view = selectedView ?: return
 
         val params =
             view.layoutParams
 
-        val minimumSize =
-            when (selectedType) {
-
-                "photo" ->
-                    100
-
-                "sticker" ->
-                    40
-
-                "location" ->
-                    120
-
-                "caption" ->
-                    140
-
-                else ->
-                    50
-            }
-
-        val maximumSize =
-            when (selectedType) {
-
-                "photo" ->
-                    400
-
-                "sticker" ->
-                    200
-
-                "location" ->
-                    400
-
-                "caption" ->
-                    450
-
-                else ->
-                    400
-            }
-
         val newWidth =
-            params.width + amount
+            max(
+                dpToPx(40),
+                view.width + dpToPx(amount)
+            )
 
         val newHeight =
-            params.height + amount
+            when (selectedType) {
 
-        if (
-            newWidth >= minimumSize &&
-            newWidth <= maximumSize
-        ) {
+                "photo",
+                "sticker" -> newWidth
 
-            params.width =
-                newWidth
+                else ->
+                    max(
+                        dpToPx(30),
+                        view.height + dpToPx(amount)
+                    )
+            }
 
-            params.height =
-                newHeight
+        params.width = newWidth
+        params.height = newHeight
 
-            view.layoutParams =
-                params
-        }
+        view.layoutParams = params
     }
 
-    // =================================================
-    // MESSAGE
-    // =================================================
+    // ----------------------------------------------------
+    // EDIT TEXT
+    // ----------------------------------------------------
 
-    private fun showSelectMessage() {
+    private fun editSelectedText() {
+
+        val view =
+            selectedView as? TextView
+                ?: return
+
+        val input =
+            EditText(this)
+
+        input.setText(
+            view.text.toString()
+                .replace("📍 ", "")
+        )
+
+        input.setSelection(
+            input.text.length
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle(
+                if (selectedType == "location")
+                    "Edit Location"
+                else
+                    "Edit Caption"
+            )
+            .setView(input)
+            .setPositiveButton("Save") { _, _ ->
+
+                val newText =
+                    input.text.toString().trim()
+
+                if (selectedType == "location") {
+
+                    view.text =
+                        "📍 $newText"
+
+                } else {
+
+                    view.text =
+                        newText
+                }
+            }
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .show()
+    }
+
+    // ----------------------------------------------------
+    // SAVE MEMORY
+    // ----------------------------------------------------
+
+    private fun saveMemory() {
+
+        if (memoryCanvas.width <= 0 ||
+            memoryCanvas.height <= 0
+        ) {
+            Toast.makeText(
+                this,
+                "Please wait and try again",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        val timestamp =
+            System.currentTimeMillis()
+
+        // Remove selection border before screenshot
+        val oldSelected =
+            selectedView
+
+        if (oldSelected != null) {
+
+            oldSelected.background =
+                when (getViewType(oldSelected)) {
+
+                    "photo" ->
+                        createPhotoBackground()
+
+                    "location",
+                    "caption" ->
+                        createTextBackground()
+
+                    else ->
+                        null
+                }
+        }
+
+        // Create exact screenshot of scrapbook
+        val bitmap =
+            Bitmap.createBitmap(
+                memoryCanvas.width,
+                memoryCanvas.height,
+                Bitmap.Config.ARGB_8888
+            )
+
+        val canvas =
+            Canvas(bitmap)
+
+        memoryCanvas.draw(canvas)
+
+        // Put selection border back
+        if (oldSelected != null) {
+
+            oldSelected.background =
+                createSelectedBackground(
+                    getViewType(oldSelected)
+                )
+        }
+
+        // Save scrapbook preview
+        val previewFile =
+            File(
+                filesDir,
+                "scrapbook_$timestamp.png"
+            )
+
+        try {
+
+            FileOutputStream(
+                previewFile
+            ).use { output ->
+
+                bitmap.compress(
+                    Bitmap.CompressFormat.PNG,
+                    100,
+                    output
+                )
+            }
+
+        } catch (e: Exception) {
+
+            Toast.makeText(
+                this,
+                "Could not save scrapbook",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        // ---------------------------------------------
+        // Save element information
+        // ---------------------------------------------
+
+        val elements =
+            JSONArray()
+
+        for (i in 0 until memoryCanvas.childCount) {
+
+            val view =
+                memoryCanvas.getChildAt(i)
+
+            val tag =
+                view.tag as? ElementTag
+                    ?: continue
+
+            val element =
+                JSONObject()
+
+            element.put(
+                "type",
+                tag.type
+            )
+
+            element.put(
+                "x",
+                view.x
+            )
+
+            element.put(
+                "y",
+                view.y
+            )
+
+            element.put(
+                "width",
+                view.width
+            )
+
+            element.put(
+                "height",
+                view.height
+            )
+
+            element.put(
+                "rotation",
+                view.rotation
+            )
+
+            if (tag.type == "photo") {
+
+                val savedPhoto =
+                    copyPhotoToInternalStorage(
+                        tag.photoUri,
+                        timestamp,
+                        i
+                    )
+
+                element.put(
+                    "photoPath",
+                    savedPhoto
+                )
+            }
+
+            if (tag.type == "sticker") {
+
+                element.put(
+                    "stickerId",
+                    tag.stickerId
+                )
+            }
+
+            if (
+                tag.type == "caption" ||
+                tag.type == "location"
+            ) {
+
+                val textView =
+                    view as? TextView
+
+                element.put(
+                    "text",
+                    textView?.text?.toString()
+                        ?: ""
+                )
+            }
+
+            elements.put(element)
+        }
+
+        // ---------------------------------------------
+        // Main memory JSON
+        // ---------------------------------------------
+
+        val preferences =
+            getSharedPreferences(
+                "MemoryPin",
+                MODE_PRIVATE
+            )
+
+        val oldMemories =
+            JSONArray(
+                preferences.getString(
+                    "memories",
+                    "[]"
+                )
+            )
+
+        val memory =
+            JSONObject()
+
+        memory.put(
+            "location",
+            getLocationFromCanvas()
+        )
+
+        memory.put(
+            "caption",
+            getCaptionFromCanvas()
+        )
+
+        memory.put(
+            "previewPath",
+            previewFile.absolutePath
+        )
+
+        memory.put(
+            "elements",
+            elements
+        )
+
+        memory.put(
+            "date",
+            timestamp
+        )
+
+        val newMemories =
+            JSONArray()
+
+        newMemories.put(memory)
+
+        for (i in 0 until oldMemories.length()) {
+            newMemories.put(
+                oldMemories.getJSONObject(i)
+            )
+        }
+
+        preferences
+            .edit()
+            .putString(
+                "memories",
+                newMemories.toString()
+            )
+            .apply()
 
         Toast.makeText(
             this,
-            "Tap an element first",
+            "Memory saved! ❤️",
             Toast.LENGTH_SHORT
         ).show()
+
+        finish()
     }
 
-    // =================================================
-    // BACKGROUND
-    // =================================================
+    // ----------------------------------------------------
+    // COPY PHOTO
+    // ----------------------------------------------------
 
-    private fun createBackground(
-        color: Int
-    ): GradientDrawable {
+    private fun copyPhotoToInternalStorage(
+        uriString: String,
+        timestamp: Long,
+        index: Int
+    ): String {
 
-        val background =
-            GradientDrawable()
+        try {
 
-        background.setColor(
-            color
-        )
+            val input =
+                contentResolver.openInputStream(
+                    Uri.parse(uriString)
+                )
 
-        background.cornerRadius =
-            15f
+            if (input != null) {
 
-        background.setStroke(
-            1,
-            Color.LTGRAY
-        )
+                val file =
+                    File(
+                        filesDir,
+                        "memory_photo_${timestamp}_$index.jpg"
+                    )
 
-        return background
+                FileOutputStream(file).use { output ->
+
+                    input.copyTo(output)
+                }
+
+                input.close()
+
+                return file.absolutePath
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return ""
     }
 
-    private fun createPhotoBackground():
-            GradientDrawable {
+    // ----------------------------------------------------
+    // GET LOCATION
+    // ----------------------------------------------------
 
-        val background =
-            GradientDrawable()
+    private fun getLocationFromCanvas(): String {
 
-        background.setColor(
-            Color.WHITE
-        )
+        for (
+        i in 0 until memoryCanvas.childCount
+        ) {
 
-        background.cornerRadius =
-            8f
+            val view =
+                memoryCanvas.getChildAt(i)
 
-        return background
+            val tag =
+                view.tag as? ElementTag
+                    ?: continue
+
+            if (tag.type == "location") {
+
+                return (
+                        view as? TextView
+                        )?.text?.toString()
+                    ?.replace("📍 ", "")
+                    ?.trim()
+                    ?: ""
+            }
+        }
+
+        return ""
     }
 
-    // =================================================
-    // STICKER NUMBER
-    // =================================================
+    // ----------------------------------------------------
+    // GET CAPTION
+    // ----------------------------------------------------
+
+    private fun getCaptionFromCanvas(): String {
+
+        for (
+        i in 0 until memoryCanvas.childCount
+        ) {
+
+            val view =
+                memoryCanvas.getChildAt(i)
+
+            val tag =
+                view.tag as? ElementTag
+                    ?: continue
+
+            if (tag.type == "caption") {
+
+                return (
+                        view as? TextView
+                        )?.text?.toString()
+                    ?.trim()
+                    ?: ""
+            }
+        }
+
+        return ""
+    }
+
+    // ----------------------------------------------------
+    // HELPERS
+    // ----------------------------------------------------
+
+    private fun getViewType(
+        view: View?
+    ): String {
+
+        val tag =
+            view?.tag as? ElementTag
+
+        return tag?.type ?: ""
+    }
 
     private fun getStickerNumber(
         stickerId: Int
@@ -909,157 +985,73 @@ class ArrangeMemoryActivity : AppCompatActivity() {
         }
     }
 
-    // =================================================
-    // SAVE
-    // =================================================
+    private fun createPhotoBackground():
+            GradientDrawable {
 
-    private fun saveMemory() {
+        return GradientDrawable().apply {
 
-        if (photos.isEmpty()) {
+            setColor(Color.WHITE)
 
-            Toast.makeText(
-                this,
-                "Please add at least one photo",
-                Toast.LENGTH_SHORT
-            ).show()
+            cornerRadius =
+                dpToPx(8).toFloat()
 
-            return
-        }
-
-        val preferences =
-            getSharedPreferences(
-                "MemoryPin",
-                MODE_PRIVATE
-            )
-
-        val oldMemories =
-            preferences.getString(
-                "memories",
-                "[]"
-            )
-
-        val memoriesArray =
-            JSONArray(
-                oldMemories
-            )
-
-        val memoryObject =
-            JSONObject()
-
-        memoryObject.put(
-            "location",
-            location
-        )
-
-        memoryObject.put(
-            "caption",
-            caption
-        )
-
-        val photoArray =
-            JSONArray()
-
-        for (photo in photos) {
-
-            val savedPath =
-                copyPhotoToStorage(
-                    Uri.parse(photo)
-                )
-
-            if (savedPath != null) {
-
-                photoArray.put(
-                    savedPath
-                )
-            }
-        }
-
-        memoryObject.put(
-            "photos",
-            photoArray
-        )
-
-        val stickerArray =
-            JSONArray()
-
-        for (sticker in stickers) {
-
-            stickerArray.put(
-                sticker
+            setStroke(
+                dpToPx(2),
+                Color.WHITE
             )
         }
-
-        memoryObject.put(
-            "stickers",
-            stickerArray
-        )
-
-        memoriesArray.put(
-            memoryObject
-        )
-
-        preferences.edit()
-            .putString(
-                "memories",
-                memoriesArray.toString()
-            )
-            .apply()
-
-        Toast.makeText(
-            this,
-            "Memory saved! ❤️",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        finishAffinity()
     }
 
-    // =================================================
-    // COPY PHOTO
-    // =================================================
+    private fun createTextBackground():
+            GradientDrawable {
 
-    private fun copyPhotoToStorage(
-        uri: Uri
-    ): String? {
+        return GradientDrawable().apply {
 
-        return try {
-
-            val fileName =
-                "memory_${System.currentTimeMillis()}_${System.nanoTime()}.jpg"
-
-            val file =
-                File(
-                    filesDir,
-                    fileName
+            setColor(
+                Color.argb(
+                    180,
+                    255,
+                    255,
+                    255
                 )
+            )
 
-            val input =
-                contentResolver.openInputStream(
-                    uri
-                )
-
-            val output =
-                FileOutputStream(
-                    file
-                )
-
-            input?.use { inputStream ->
-
-                output.use { outputStream ->
-
-                    inputStream.copyTo(
-                        outputStream
-                    )
-                }
-            }
-
-            file.absolutePath
-
-        } catch (e: Exception) {
-
-            e.printStackTrace()
-
-            null
+            cornerRadius =
+                dpToPx(10).toFloat()
         }
+    }
+
+    private fun createSelectedBackground(
+        type: String
+    ): GradientDrawable {
+
+        return GradientDrawable().apply {
+
+            setColor(
+                Color.TRANSPARENT
+            )
+
+            cornerRadius =
+                dpToPx(8).toFloat()
+
+            setStroke(
+                dpToPx(2),
+                Color.rgb(
+                    112,
+                    82,
+                    170
+                )
+            )
+        }
+    }
+
+    private fun dpToPx(
+        dp: Int
+    ): Int {
+
+        return (
+                dp *
+                        resources.displayMetrics.density
+                ).toInt()
     }
 }

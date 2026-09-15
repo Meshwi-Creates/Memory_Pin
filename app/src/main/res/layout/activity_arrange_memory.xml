@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F4FA">
+    android:background="#F4EFF5">
 
     <TextView
         android:id="@+id/tvArrangeTitle"
@@ -18,34 +18,36 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="15dp" />
+        android:layout_marginTop="12dp" />
 
     <TextView
         android:id="@+id/tvArrangeHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tap to select • Drag to move ✨"
+        android:text="Drag anything anywhere inside the frame ✨"
         android:textSize="13sp"
         android:textColor="#777177"
         app:layout_constraintTop_toBottomOf="@id/tvArrangeTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="3dp" />
 
     <FrameLayout
         android:id="@+id/memoryCanvas"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#FFFDFC"
-        android:clipChildren="false"
-        android:clipToPadding="false"
+        android:background="@drawable/memory_canvas_background"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:padding="5dp"
         app:layout_constraintTop_toBottomOf="@id/tvArrangeHint"
         app:layout_constraintBottom_toTopOf="@id/photoControls"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="15dp" />
-
-    <!-- EDITING CONTROLS -->
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp" />
 
     <LinearLayout
         android:id="@+id/photoControls"
@@ -53,7 +55,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="5dp"
+        android:padding="3dp"
         app:layout_constraintBottom_toTopOf="@id/btnSaveArrangement"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -61,35 +63,35 @@
         <Button
             android:id="@+id/btnPhotoSmall"
             android:layout_width="52dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:text="−"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnPhotoBig"
             android:layout_width="52dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:text="+"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnPhotoRotate"
             android:layout_width="65dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:text="↻"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnEditText"
             android:layout_width="65dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:text="✏️"
             android:textSize="18sp" />
 
         <Button
             android:id="@+id/btnPhotoDelete"
             android:layout_width="65dp"
-            android:layout_height="50dp"
+            android:layout_height="48dp"
             android:text="🗑"
             android:textSize="18sp" />
 
@@ -106,6 +108,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="10dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

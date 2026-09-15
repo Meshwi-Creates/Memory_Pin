@@ -1,17 +1,18 @@
 package com.meshwi.memorypin
 
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.View
+import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -19,43 +20,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var memoryContainer: LinearLayout
     private lateinit var tvEmpty: TextView
 
-    private val stickerDrawables = arrayOf(
-        R.drawable.map,
-        R.drawable.airplane,
-        R.drawable.suitcase,
-        R.drawable.mountain,
-        R.drawable.wave,
-        R.drawable.ticket,
-        R.drawable.globe,
-        R.drawable.camera,
-        R.drawable.heart,
-        R.drawable.pin,
-        R.drawable.sunglasses,
-        R.drawable.polaroid,
-        R.drawable.sun,
-        R.drawable.palm,
-        R.drawable.rainbow
-    )
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main)
+        setContentView(
+            R.layout.activity_main
+        )
 
         memoryContainer =
-            findViewById(R.id.memoryContainer)
+            findViewById(
+                R.id.memoryContainer
+            )
 
         tvEmpty =
-            findViewById(R.id.tvEmpty)
+            findViewById(
+                R.id.tvEmpty
+            )
 
         val btnCreateMemory =
-            findViewById<Button>(R.id.btnCreateMemory)
+            findViewById<Button>(
+                R.id.btnCreateMemory
+            )
 
         btnCreateMemory.setOnClickListener {
 
             val intent =
-                Intent(
+                android.content.Intent(
                     this,
                     CreateMemoryActivity::class.java
                 )
@@ -65,13 +57,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-
         super.onResume()
 
         loadMemories()
     }
-
-    // ---------------- LOAD MEMORIES ----------------
 
     private fun loadMemories() {
 
@@ -83,43 +72,40 @@ class MainActivity : AppCompatActivity() {
                 MODE_PRIVATE
             )
 
-        val savedMemories =
+        val jsonString =
             preferences.getString(
                 "memories",
                 "[]"
             )
 
-        val memoriesArray =
-            JSONArray(savedMemories)
+        val memories =
+            JSONArray(jsonString)
 
-        if (memoriesArray.length() == 0) {
+        if (memories.length() == 0) {
 
             tvEmpty.visibility =
-                View.VISIBLE
+                TextView.VISIBLE
 
             return
         }
 
         tvEmpty.visibility =
-            View.GONE
+            TextView.GONE
 
         // Newest memory first
-
         for (
-        i in memoriesArray.length() - 1 downTo 0
+        i in 0 until memories.length()
         ) {
 
             val memory =
-                memoriesArray.getJSONObject(i)
+                memories.getJSONObject(i)
 
             addMemoryCard(memory)
         }
     }
 
-    // ---------------- MEMORY CARD ----------------
-
     private fun addMemoryCard(
-        memory: org.json.JSONObject
+        memory: JSONObject
     ) {
 
         val card =
@@ -129,133 +115,198 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.VERTICAL
 
         card.setPadding(
-            15,
-            15,
-            15,
-            15
+            dpToPx(10),
+            dpToPx(10),
+            dpToPx(10),
+            dpToPx(10)
         )
-
-        // Card background
-
-        val background =
-            GradientDrawable()
-
-        background.setColor(
-            Color.rgb(
-                248,
-                245,
-                240
-            )
-        )
-
-        background.cornerRadius =
-            25f
 
         card.background =
-            background
+            createCardBackground()
 
         val cardParams =
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
 
         cardParams.setMargins(
             0,
+            dpToPx(8),
             0,
-            0,
-            25
+            dpToPx(16)
         )
 
         card.layoutParams =
             cardParams
 
+        // ---------------------------------------------
+        // EXACT SCRAPBOOK PREVIEW
+        // ---------------------------------------------
 
-        // ---------------- PHOTO ----------------
-
-        val photos =
-            memory.getJSONArray(
-                "photos"
+        val previewPath =
+            memory.optString(
+                "previewPath",
+                ""
             )
 
-        if (photos.length() > 0) {
+        if (
+            previewPath.isNotEmpty() &&
+            File(previewPath).exists()
+        ) {
+
+            val preview =
+                ImageView(this)
+
+            val bitmap =
+                BitmapFactory.decodeFile(
+                    previewPath
+                )
+
+            preview.setImageBitmap(bitmap)
+
+            // Keep exact scrapbook proportions
+            preview.scaleType =
+                ImageView.ScaleType.FIT_CENTER
+
+            preview.adjustViewBounds =
+                true
+
+            preview.setBackgroundColor(
+                Color.WHITE
+            )
+
+            val imageParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+
+            preview.layoutParams =
+                imageParams
+
+            card.addView(preview)
+
+        } else {
+
+            // -----------------------------------------
+            // OLD MEMORY FALLBACK
+            // -----------------------------------------
+
+            addOldMemoryPreview(
+                card,
+                memory
+            )
+        }
+
+        memoryContainer.addView(card)
+    }
+
+    private fun addOldMemoryPreview(
+        card: LinearLayout,
+        memory: JSONObject
+    ) {
+
+        val elements =
+            memory.optJSONArray(
+                "elements"
+            )
+
+        var firstPhotoPath =
+            ""
+
+        if (elements != null) {
+
+            for (
+            i in 0 until elements.length()
+            ) {
+
+                val element =
+                    elements.getJSONObject(i)
+
+                if (
+                    element.optString(
+                        "type"
+                    ) == "photo"
+                ) {
+
+                    firstPhotoPath =
+                        element.optString(
+                            "photoPath",
+                            ""
+                        )
+
+                    break
+                }
+            }
+        }
+
+        if (
+            firstPhotoPath.isNotEmpty() &&
+            File(firstPhotoPath).exists()
+        ) {
 
             val image =
                 ImageView(this)
 
-            image.layoutParams =
-                LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    220
+            image.setImageBitmap(
+                BitmapFactory.decodeFile(
+                    firstPhotoPath
                 )
+            )
 
             image.scaleType =
                 ImageView.ScaleType.CENTER_CROP
 
-            val photoPath =
-                photos.getString(0)
+            val params =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dpToPx(180)
+                )
 
-            val photoFile =
-                File(photoPath)
+            image.layoutParams =
+                params
 
-            if (photoFile.exists()) {
+            card.addView(image)
+        }
 
-                val bitmap =
-                    BitmapFactory.decodeFile(
-                        photoFile.absolutePath
-                    )
+        val location =
+            memory.optString(
+                "location",
+                ""
+            )
 
-                if (bitmap != null) {
+        if (location.isNotEmpty()) {
 
-                    image.setImageBitmap(
-                        bitmap
-                    )
-                }
-            }
+            val locationText =
+                TextView(this)
+
+            locationText.text =
+                "📍 $location"
+
+            locationText.textSize =
+                16f
+
+            locationText.setTextColor(
+                Color.DKGRAY
+            )
+
+            locationText.setPadding(
+                0,
+                dpToPx(5),
+                0,
+                dpToPx(3)
+            )
 
             card.addView(
-                image
+                locationText
             )
         }
 
-
-        // ---------------- LOCATION ----------------
-
-        val location =
-            memory.getString(
-                "location"
-            )
-
-        val locationText =
-            TextView(this)
-
-        locationText.text =
-            "📍 $location"
-
-        locationText.textSize =
-            20f
-
-        locationText.setTextColor(
-            Color.BLACK
-        )
-
-        locationText.setPadding(
-            5,
-            15,
-            5,
-            5
-        )
-
-        card.addView(
-            locationText
-        )
-
-
-        // ---------------- CAPTION ----------------
-
         val caption =
-            memory.getString(
-                "caption"
+            memory.optString(
+                "caption",
+                ""
             )
 
         if (caption.isNotEmpty()) {
@@ -267,117 +318,52 @@ class MainActivity : AppCompatActivity() {
                 caption
 
             captionText.textSize =
-                16f
+                14f
 
             captionText.setTextColor(
                 Color.DKGRAY
-            )
-
-            captionText.setPadding(
-                5,
-                5,
-                5,
-                10
             )
 
             card.addView(
                 captionText
             )
         }
-
-
-        // ---------------- STICKERS ----------------
-
-        val stickers =
-            memory.getJSONArray(
-                "stickers"
-            )
-
-        if (stickers.length() > 0) {
-
-            val stickerLayout =
-                LinearLayout(this)
-
-            stickerLayout.orientation =
-                LinearLayout.HORIZONTAL
-
-            for (
-            j in 0 until stickers.length()
-            ) {
-
-                val stickerId =
-                    stickers.getInt(j)
-
-                val stickerNumber =
-                    getStickerNumber(
-                        stickerId
-                    )
-
-                if (stickerNumber != -1) {
-
-                    val sticker =
-                        ImageView(this)
-
-                    sticker.setImageResource(
-                        stickerDrawables[
-                            stickerNumber
-                        ]
-                    )
-
-                    sticker.layoutParams =
-                        LinearLayout.LayoutParams(
-                            60,
-                            60
-                        )
-
-                    sticker.setPadding(
-                        5,
-                        5,
-                        5,
-                        5
-                    )
-
-                    stickerLayout.addView(
-                        sticker
-                    )
-                }
-            }
-
-            card.addView(
-                stickerLayout
-            )
-        }
-
-        memoryContainer.addView(
-            card
-        )
     }
 
-    // ---------------- STICKER NUMBER ----------------
+    private fun createCardBackground():
+            GradientDrawable {
 
-    private fun getStickerNumber(
-        stickerId: Int
+        return GradientDrawable().apply {
+
+            setColor(
+                Color.rgb(
+                    255,
+                    253,
+                    252
+                )
+            )
+
+            cornerRadius =
+                dpToPx(18).toFloat()
+
+            setStroke(
+                dpToPx(1),
+                Color.rgb(
+                    230,
+                    222,
+                    232
+                )
+            )
+        }
+    }
+
+    private fun dpToPx(
+        dp: Int
     ): Int {
 
-        return when (stickerId) {
-
-            R.id.sticker1 -> 0
-            R.id.sticker2 -> 1
-            R.id.sticker3 -> 2
-            R.id.sticker4 -> 3
-            R.id.sticker5 -> 4
-            R.id.sticker6 -> 5
-            R.id.sticker7 -> 6
-            R.id.sticker8 -> 7
-            R.id.sticker9 -> 8
-            R.id.sticker10 -> 9
-            R.id.sticker11 -> 10
-            R.id.sticker12 -> 11
-            R.id.sticker13 -> 12
-            R.id.sticker14 -> 13
-            R.id.sticker15 -> 14
-
-            else -> -1
-        }
+        return (
+                dp *
+                        resources.displayMetrics.density
+                ).toInt()
     }
 }

@@ -108,6 +108,22 @@ This project demonstrates practical understanding of Android application develop
 - Touch and drag interactions
 
 ---
+## 📱 Screenshots
+
+### 1. Home Screen
+
+![home screen](app/Screenshots/1.png)
+
+### 2. Create Memory
+
+![Create Memory](app/Screenshots/2.png)
+
+### 3. Arrange Memory
+
+![Arrange Memory](app/Screenshots/3.png)
+
+
+---
 
 ## 📂 Project Structure
 

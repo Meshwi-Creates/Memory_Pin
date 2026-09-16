@@ -22,12 +22,21 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SeePhotosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MemoryPreviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".ArrangeMemoryActivity"
             android:exported="false" />
         <activity
             android:name=".CreateMemoryActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".MemoryMapActivity"
+            android:exported="false" />
         <activity
             android:name=".StickerActivity"
             android:exported="false"

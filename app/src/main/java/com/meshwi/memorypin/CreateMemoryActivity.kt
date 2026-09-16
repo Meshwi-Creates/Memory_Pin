@@ -1,25 +1,28 @@
 package com.meshwi.memorypin
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
-import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.FrameLayout
 
 class CreateMemoryActivity : AppCompatActivity() {
 
-    // ---------------- PHOTOS ----------------
+    // =========================================================
+    // PHOTOS
+    // =========================================================
 
     private val selectedPhotos =
         ArrayList<Uri>()
@@ -28,99 +31,143 @@ class CreateMemoryActivity : AppCompatActivity() {
     private lateinit var image2: ImageView
     private lateinit var image3: ImageView
 
+    private lateinit var photoSlot1: View
+    private lateinit var photoSlot2: View
+    private lateinit var photoSlot3: View
 
-    // ---------------- STICKERS ----------------
+    private lateinit var removeBadge1: View
+    private lateinit var removeBadge2: View
+    private lateinit var removeBadge3: View
 
-    private lateinit var stickerContainer: LinearLayout
-    private lateinit var stickerScroll: HorizontalScrollView
+
+    // =========================================================
+    // STICKERS
+    // =========================================================
 
     private val selectedStickerIds =
         ArrayList<Int>()
 
-    private val stickerDrawables = arrayOf(
-        R.drawable.map,
-        R.drawable.airplane,
-        R.drawable.suitcase,
-        R.drawable.mountain,
-        R.drawable.wave,
-        R.drawable.ticket,
-        R.drawable.globe,
-        R.drawable.camera,
-        R.drawable.heart,
-        R.drawable.pin,
-        R.drawable.sunglasses,
-        R.drawable.polaroid,
-        R.drawable.sun,
-        R.drawable.palm,
-        R.drawable.rainbow
-    )
+    private lateinit var stickerCount: TextView
+
+    private lateinit var stickerPaletteRow:
+            LinearLayout
 
 
-    // ---------------- PHOTO PICKER ----------------
+    // =========================================================
+    // STICKER DRAWABLES
+    // =========================================================
+
+    private val stickerDrawables =
+        mapOf(
+
+            R.id.sticker1 to R.drawable.map,
+
+            R.id.sticker2 to R.drawable.airplane,
+
+            R.id.sticker3 to R.drawable.suitcase,
+
+            R.id.sticker4 to R.drawable.mountain,
+
+            R.id.sticker5 to R.drawable.wave,
+
+            R.id.sticker6 to R.drawable.ticket,
+
+            R.id.sticker7 to R.drawable.globe,
+
+            R.id.sticker8 to R.drawable.camera,
+
+            R.id.sticker9 to R.drawable.heart,
+
+            R.id.sticker10 to R.drawable.pin,
+
+            R.id.sticker11 to R.drawable.sunglasses,
+
+            R.id.sticker12 to R.drawable.polaroid,
+
+            R.id.sticker13 to R.drawable.sun,
+
+            R.id.sticker14 to R.drawable.palm,
+
+            R.id.sticker15 to R.drawable.rainbow
+        )
+
+
+    // =========================================================
+    // PHOTO PICKER
+    // =========================================================
 
     private val photoPicker =
         registerForActivityResult(
             ActivityResultContracts.GetMultipleContents()
         ) { uris ->
 
-            if (uris.size in 1..3) {
-
-                selectedPhotos.clear()
-
-                selectedPhotos.addAll(
-                    uris
-                )
-
-                showPhotos()
-
-                Toast.makeText(
-                    this,
-                    "${uris.size} photo(s) selected",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            } else if (uris.isNotEmpty()) {
-
-                Toast.makeText(
-                    this,
-                    "Please select maximum 3 photos",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (uris.isEmpty()) {
+                return@registerForActivityResult
             }
+
+
+            if (uris.size > 3) {
+
+                Toast.makeText(
+                    this,
+                    "Maximum 3 photos allowed",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@registerForActivityResult
+            }
+
+
+            selectedPhotos.clear()
+
+            selectedPhotos.addAll(
+                uris.take(3)
+            )
+
+            showPhotos()
         }
 
 
-    // ---------------- STICKER PICKER ----------------
+    // =========================================================
+    // STICKER PICKER
+    // =========================================================
 
     private val stickerPicker =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
 
-            if (result.resultCode == RESULT_OK) {
+            if (
+                result.resultCode !=
+                RESULT_OK
+            ) {
+                return@registerForActivityResult
+            }
 
-                val stickers =
-                    result.data?.getIntegerArrayListExtra(
+
+            val stickers =
+                result.data
+                    ?.getIntegerArrayListExtra(
                         "selectedStickers"
                     )
 
-                if (stickers != null) {
 
-                    selectedStickerIds.clear()
+            if (stickers != null) {
 
-                    selectedStickerIds.addAll(
-                        stickers
-                    )
+                selectedStickerIds.clear()
 
-                    showSelectedStickers(
-                        stickers
-                    )
-                }
+                selectedStickerIds.addAll(
+                    stickers.take(8)
+                )
+
+                updateStickerSection()
             }
         }
 
 
-    // ---------------- ON CREATE ----------------
+    // =========================================================
+    // ON CREATE
+    // =========================================================
 
     override fun onCreate(
         savedInstanceState: Bundle?
@@ -134,6 +181,10 @@ class CreateMemoryActivity : AppCompatActivity() {
             R.layout.activity_create_memory
         )
 
+
+        // -----------------------------------------------------
+        // PHOTO VIEWS
+        // -----------------------------------------------------
 
         image1 =
             findViewById(
@@ -151,25 +202,72 @@ class CreateMemoryActivity : AppCompatActivity() {
             )
 
 
-        stickerContainer =
+        photoSlot1 =
             findViewById(
-                R.id.stickerContainer
+                R.id.photoSlot1
             )
 
-        stickerScroll =
+        photoSlot2 =
             findViewById(
-                R.id.stickerScroll
+                R.id.photoSlot2
+            )
+
+        photoSlot3 =
+            findViewById(
+                R.id.photoSlot3
             )
 
 
-        // ---------------- PHOTOS ----------------
-
-        val btnAddPhotos =
-            findViewById<Button>(
-                R.id.btnAddPhotos
+        removeBadge1 =
+            findViewById(
+                R.id.removeBadge1
             )
 
-        btnAddPhotos.setOnClickListener {
+        removeBadge2 =
+            findViewById(
+                R.id.removeBadge2
+            )
+
+        removeBadge3 =
+            findViewById(
+                R.id.removeBadge3
+            )
+
+
+        // -----------------------------------------------------
+        // STICKER VIEWS
+        // -----------------------------------------------------
+
+        stickerCount =
+            findViewById(
+                R.id.tvStickerCount
+            )
+
+        stickerPaletteRow =
+            findViewById(
+                R.id.stickerPaletteRow
+            )
+
+
+        // -----------------------------------------------------
+        // BACK
+        // -----------------------------------------------------
+
+        findViewById<View>(
+            R.id.btnBack
+        ).setOnClickListener {
+
+            finish()
+        }
+
+
+        // -----------------------------------------------------
+        // ADD PHOTOS
+        // -----------------------------------------------------
+
+        findViewById<View>(
+            R.id.btnAddPhotos
+        ).setOnClickListener {
 
             photoPicker.launch(
                 "image/*"
@@ -177,41 +275,39 @@ class CreateMemoryActivity : AppCompatActivity() {
         }
 
 
-        // ---------------- STICKERS ----------------
+        // -----------------------------------------------------
+        // REMOVE PHOTO
+        // -----------------------------------------------------
 
-        val btnStickers =
-            findViewById<Button>(
-                R.id.btnStickers
-            )
+        removeBadge1.setOnClickListener {
+            removePhoto(0)
+        }
 
-        btnStickers.setOnClickListener {
+        removeBadge2.setOnClickListener {
+            removePhoto(1)
+        }
 
-            val intent =
-                Intent(
-                    this,
-                    StickerActivity::class.java
-                )
-
-            stickerPicker.launch(
-                intent
-            )
+        removeBadge3.setOnClickListener {
+            removePhoto(2)
         }
 
 
-        // ---------------- CAPTION ----------------
+        // -----------------------------------------------------
+        // LOCATION
+        // -----------------------------------------------------
 
-        val etCaption =
+        val location =
             findViewById<EditText>(
-                R.id.etCaption
+                R.id.etLocation
             )
 
-        val tvWordCount =
+        val locationError =
             findViewById<TextView>(
-                R.id.tvWordCount
+                R.id.tvLocationError
             )
 
 
-        etCaption.addTextChangedListener(
+        location.addTextChangedListener(
             object : TextWatcher {
 
                 override fun beforeTextChanged(
@@ -219,8 +315,57 @@ class CreateMemoryActivity : AppCompatActivity() {
                     start: Int,
                     count: Int,
                     after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
                 ) {
+
+                    if (
+                        s.toString()
+                            .trim()
+                            .isNotEmpty()
+                    ) {
+
+                        locationError.visibility =
+                            View.GONE
+                    }
                 }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {}
+            }
+        )
+
+
+        // -----------------------------------------------------
+        // CAPTION
+        // -----------------------------------------------------
+
+        val caption =
+            findViewById<EditText>(
+                R.id.etCaption
+            )
+
+        val wordCount =
+            findViewById<TextView>(
+                R.id.tvWordCount
+            )
+
+
+        caption.addTextChangedListener(
+            object : TextWatcher {
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
 
                 override fun onTextChanged(
                     s: CharSequence?,
@@ -230,10 +375,15 @@ class CreateMemoryActivity : AppCompatActivity() {
                 ) {
 
                     val text =
-                        s.toString().trim()
+                        s?.toString()
+                            ?.trim()
+                            ?: ""
+
 
                     val words =
-                        if (text.isEmpty()) {
+                        if (
+                            text.isEmpty()
+                        ) {
                             0
                         } else {
                             text.split(
@@ -241,42 +391,93 @@ class CreateMemoryActivity : AppCompatActivity() {
                             ).size
                         }
 
-                    tvWordCount.text =
+
+                    wordCount.text =
                         "$words / 50 words"
 
-                    if (words > 50) {
 
-                        etCaption.error =
+                    if (
+                        words > 50
+                    ) {
+
+                        caption.error =
                             "Maximum 50 words allowed"
                     }
                 }
 
                 override fun afterTextChanged(
                     s: Editable?
-                ) {
-                }
+                ) {}
             }
         )
 
 
-        // ---------------- ARRANGE BUTTON ----------------
+        // -----------------------------------------------------
+        // CHOOSE MORE STICKERS
+        // -----------------------------------------------------
 
-        val btnSaveMemory =
-            findViewById<Button>(
-                R.id.btnSaveMemory
+        findViewById<View>(
+            R.id.btnStickers
+        ).setOnClickListener {
+
+            if (
+                selectedStickerIds.size >= 8
+            ) {
+
+                Toast.makeText(
+                    this,
+                    "Maximum 8 stickers selected",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@setOnClickListener
+            }
+
+
+            val intent =
+                Intent(
+                    this,
+                    StickerActivity::class.java
+                )
+
+
+            intent.putIntegerArrayListExtra(
+                "selectedStickers",
+                selectedStickerIds
             )
 
-        btnSaveMemory.text =
-            "Arrange Memory"
 
-        btnSaveMemory.setOnClickListener {
+            stickerPicker.launch(
+                intent
+            )
+        }
+
+
+        // -----------------------------------------------------
+        // CONTINUE
+        // -----------------------------------------------------
+
+        findViewById<View>(
+            R.id.btnSaveMemory
+        ).setOnClickListener {
 
             openArrangeScreen()
         }
+
+
+        // -----------------------------------------------------
+        // INITIAL
+        // -----------------------------------------------------
+
+        showPhotos()
+
+        updateStickerSection()
     }
 
 
-    // ---------------- SHOW PHOTOS ----------------
+    // =========================================================
+    // PHOTOS
+    // =========================================================
 
     private fun showPhotos() {
 
@@ -290,7 +491,49 @@ class CreateMemoryActivity : AppCompatActivity() {
             View.GONE
 
 
-        if (selectedPhotos.size >= 1) {
+        removeBadge1.visibility =
+            View.GONE
+
+        removeBadge2.visibility =
+            View.GONE
+
+        removeBadge3.visibility =
+            View.GONE
+
+
+        photoSlot1.visibility =
+            if (
+                selectedPhotos.size >= 1
+            ) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+
+        photoSlot2.visibility =
+            if (
+                selectedPhotos.size >= 2
+            ) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+
+        photoSlot3.visibility =
+            if (
+                selectedPhotos.size >= 3
+            ) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+
+        if (
+            selectedPhotos.size >= 1
+        ) {
 
             image1.setImageURI(
                 selectedPhotos[0]
@@ -298,10 +541,15 @@ class CreateMemoryActivity : AppCompatActivity() {
 
             image1.visibility =
                 View.VISIBLE
+
+            removeBadge1.visibility =
+                View.VISIBLE
         }
 
 
-        if (selectedPhotos.size >= 2) {
+        if (
+            selectedPhotos.size >= 2
+        ) {
 
             image2.setImageURI(
                 selectedPhotos[1]
@@ -309,10 +557,15 @@ class CreateMemoryActivity : AppCompatActivity() {
 
             image2.visibility =
                 View.VISIBLE
+
+            removeBadge2.visibility =
+                View.VISIBLE
         }
 
 
-        if (selectedPhotos.size >= 3) {
+        if (
+            selectedPhotos.size >= 3
+        ) {
 
             image3.setImageURI(
                 selectedPhotos[2]
@@ -320,114 +573,390 @@ class CreateMemoryActivity : AppCompatActivity() {
 
             image3.visibility =
                 View.VISIBLE
+
+            removeBadge3.visibility =
+                View.VISIBLE
         }
     }
 
 
-    // ---------------- SHOW STICKERS ----------------
-
-    private fun showSelectedStickers(
-        stickers: ArrayList<Int>
+    private fun removePhoto(
+        position: Int
     ) {
 
-        stickerContainer.removeAllViews()
+        if (
+            position >=
+            selectedPhotos.size
+        ) {
+            return
+        }
 
 
-        if (stickers.isEmpty()) {
+        selectedPhotos.removeAt(
+            position
+        )
 
-            stickerScroll.visibility =
-                View.GONE
+        showPhotos()
+    }
+
+
+    // =========================================================
+    // STICKER SECTION
+    // =========================================================
+
+    private fun updateStickerSection() {
+
+        stickerPaletteRow.removeAllViews()
+
+
+        stickerCount.text =
+            "${selectedStickerIds.size} / 8 selected"
+
+
+        // -----------------------------------------------------
+        // NOTHING SELECTED
+        // SHOW ORIGINAL 8 CHOICES
+        // -----------------------------------------------------
+
+        if (
+            selectedStickerIds.isEmpty()
+        ) {
+
+            showStickerChoices()
 
             return
         }
 
 
-        stickerScroll.visibility =
-            View.VISIBLE
+        // -----------------------------------------------------
+        // SOMETHING SELECTED
+        // SHOW ONLY SELECTED STICKERS
+        // -----------------------------------------------------
+
+        for (
+        stickerId in selectedStickerIds
+        ) {
+
+            val drawable =
+                stickerDrawables[
+                    stickerId
+                ]
 
 
-        for (stickerId in stickers) {
+            if (
+                drawable != null
+            ) {
 
-            val stickerNumber =
-                when (stickerId) {
-
-                    R.id.sticker1 -> 0
-                    R.id.sticker2 -> 1
-                    R.id.sticker3 -> 2
-                    R.id.sticker4 -> 3
-                    R.id.sticker5 -> 4
-                    R.id.sticker6 -> 5
-                    R.id.sticker7 -> 6
-                    R.id.sticker8 -> 7
-                    R.id.sticker9 -> 8
-                    R.id.sticker10 -> 9
-                    R.id.sticker11 -> 10
-                    R.id.sticker12 -> 11
-                    R.id.sticker13 -> 12
-                    R.id.sticker14 -> 13
-                    R.id.sticker15 -> 14
-
-                    else -> -1
-                }
-
-
-            if (stickerNumber != -1) {
-
-                val imageView =
-                    ImageView(this)
-
-                imageView.setImageResource(
-                    stickerDrawables[
-                        stickerNumber
-                    ]
-                )
-
-                imageView.layoutParams =
-                    LinearLayout.LayoutParams(
-                        70,
-                        70
-                    )
-
-                imageView.setPadding(
-                    5,
-                    5,
-                    5,
-                    5
-                )
-
-                stickerContainer.addView(
-                    imageView
+                addSelectedSticker(
+                    stickerId,
+                    drawable
                 )
             }
         }
     }
 
 
-    // ---------------- OPEN ARRANGE SCREEN ----------------
+    // =========================================================
+    // SHOW DEFAULT STICKER CHOICES
+    // =========================================================
+
+    private fun showStickerChoices() {
+
+        val choices =
+            listOf(
+
+                R.id.sticker2,
+
+                R.id.sticker8,
+
+                R.id.sticker7,
+
+                R.id.sticker9,
+
+                R.id.sticker10,
+
+                R.id.sticker12,
+
+                R.id.sticker14,
+
+                R.id.sticker4
+            )
+
+
+        for (
+        stickerId in choices
+        ) {
+
+            val drawable =
+                stickerDrawables[
+                    stickerId
+                ]
+
+
+            if (
+                drawable != null
+            ) {
+
+                addStickerChoice(
+                    stickerId,
+                    drawable
+                )
+            }
+        }
+    }
+
+
+    // =========================================================
+    // DEFAULT STICKER
+    // =========================================================
+
+    private fun addStickerChoice(
+        stickerId: Int,
+        drawable: Int
+    ) {
+
+        val image =
+            ImageView(this)
+
+
+        image.setImageResource(
+            drawable
+        )
+
+
+        image.scaleType =
+            ImageView.ScaleType.CENTER_INSIDE
+
+
+        image.setPadding(
+            dp(8),
+            dp(8),
+            dp(8),
+            dp(8)
+        )
+
+
+        image.background =
+            createStickerBox()
+
+
+        val params =
+            LinearLayout.LayoutParams(
+                dp(78),
+                dp(78)
+            )
+
+
+        params.setMargins(
+            dp(5),
+            0,
+            dp(5),
+            0
+        )
+
+
+        stickerPaletteRow.addView(
+            image,
+            params
+        )
+
+
+        image.setOnClickListener {
+
+            if (
+                selectedStickerIds.size >= 8
+            ) {
+
+                Toast.makeText(
+                    this,
+                    "Maximum 8 stickers allowed",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@setOnClickListener
+            }
+
+
+            if (
+                !selectedStickerIds
+                    .contains(stickerId)
+            ) {
+
+                selectedStickerIds.add(
+                    stickerId
+                )
+
+                updateStickerSection()
+            }
+        }
+    }
+
+
+    // =========================================================
+    // SELECTED STICKER
+    // =========================================================
+
+    private fun addSelectedSticker(
+        stickerId: Int,
+        drawable: Int
+    ) {
+
+        val wrapper =
+            FrameLayout(
+                this
+            )
+
+
+        wrapper.background =
+            createSelectedStickerBox()
+
+
+        val image =
+            ImageView(this)
+
+
+        image.setImageResource(
+            drawable
+        )
+
+
+        image.scaleType =
+            ImageView.ScaleType.CENTER_INSIDE
+
+
+        image.setPadding(
+            dp(5),
+            dp(5),
+            dp(5),
+            dp(5)
+        )
+
+
+        wrapper.addView(
+            image,
+            FrameLayout.LayoutParams(
+                -1,
+                -1
+            )
+        )
+
+
+        // Small remove X
+
+        val remove =
+            TextView(this)
+
+
+        remove.text =
+            "×"
+
+
+        remove.textSize =
+            15f
+
+
+        remove.setTextColor(
+            Color.WHITE
+        )
+
+
+        remove.gravity =
+            Gravity.CENTER
+
+
+        remove.background =
+            GradientDrawable().apply {
+
+                shape =
+                    GradientDrawable.OVAL
+
+                setColor(
+                    Color.rgb(
+                        235,
+                        125,
+                        94
+                    )
+                )
+            }
+
+
+        val removeParams =
+            FrameLayout.LayoutParams(
+                dp(25),
+                dp(25)
+            )
+
+
+        removeParams.gravity =
+            Gravity.TOP or
+                    Gravity.END
+
+
+        wrapper.addView(
+            remove,
+            removeParams
+        )
+
+
+        val params =
+            LinearLayout.LayoutParams(
+                dp(85),
+                dp(85)
+            )
+
+
+        params.setMargins(
+            dp(5),
+            0,
+            dp(5),
+            0
+        )
+
+
+        stickerPaletteRow.addView(
+            wrapper,
+            params
+        )
+
+
+        // Tap sticker itself → remove
+
+        image.setOnClickListener {
+
+            selectedStickerIds.remove(
+                stickerId
+            )
+
+            updateStickerSection()
+        }
+
+
+        // Tap X → remove
+
+        remove.setOnClickListener {
+
+            selectedStickerIds.remove(
+                stickerId
+            )
+
+            updateStickerSection()
+        }
+    }
+
+
+    // =========================================================
+    // OPEN CANVAS
+    // =========================================================
 
     private fun openArrangeScreen() {
 
-        val location =
-            findViewById<EditText>(
-                R.id.etLocation
-            )
-                .text
-                .toString()
-                .trim()
+        // -----------------------------------------------------
+        // PHOTO
+        // -----------------------------------------------------
 
-
-        val caption =
-            findViewById<EditText>(
-                R.id.etCaption
-            )
-                .text
-                .toString()
-                .trim()
-
-
-        // Photo validation
-
-        if (selectedPhotos.isEmpty()) {
+        if (
+            selectedPhotos.isEmpty()
+        ) {
 
             Toast.makeText(
                 this,
@@ -439,51 +968,89 @@ class CreateMemoryActivity : AppCompatActivity() {
         }
 
 
-        // Location validation
+        // -----------------------------------------------------
+        // LOCATION
+        // -----------------------------------------------------
 
-        if (location.isEmpty()) {
-
+        val location =
             findViewById<EditText>(
                 R.id.etLocation
-            ).error =
-                "Please enter a location"
+            )
+
+
+        val locationText =
+            location.text
+                .toString()
+                .trim()
+
+
+        if (
+            locationText.isEmpty()
+        ) {
+
+            location.error =
+                "Location is required"
+
+            location.requestFocus()
 
             return
         }
 
 
-        // Caption validation
+        // -----------------------------------------------------
+        // CAPTION
+        // -----------------------------------------------------
 
-        val wordCount =
-            if (caption.isEmpty()) {
+        val caption =
+            findViewById<EditText>(
+                R.id.etCaption
+            )
 
+
+        val captionText =
+            caption.text
+                .toString()
+                .trim()
+
+
+        val words =
+            if (
+                captionText.isEmpty()
+            ) {
                 0
-
             } else {
-
-                caption.split(
-                    "\\s+".toRegex()
-                ).size
+                captionText
+                    .split(
+                        "\\s+".toRegex()
+                    )
+                    .size
             }
 
 
-        if (wordCount > 50) {
+        if (
+            words > 50
+        ) {
 
-            findViewById<EditText>(
-                R.id.etCaption
-            ).error =
-                "Caption cannot exceed 50 words"
+            caption.error =
+                "Maximum 50 words allowed"
+
+            caption.requestFocus()
 
             return
         }
 
 
-        // Convert photos to strings
+        // -----------------------------------------------------
+        // PHOTOS
+        // -----------------------------------------------------
 
         val photoStrings =
             ArrayList<String>()
 
-        for (photo in selectedPhotos) {
+
+        for (
+        photo in selectedPhotos
+        ) {
 
             photoStrings.add(
                 photo.toString()
@@ -491,7 +1058,9 @@ class CreateMemoryActivity : AppCompatActivity() {
         }
 
 
-        // Open arrange screen
+        // -----------------------------------------------------
+        // CANVAS INTENT
+        // -----------------------------------------------------
 
         val intent =
             Intent(
@@ -508,13 +1077,13 @@ class CreateMemoryActivity : AppCompatActivity() {
 
         intent.putExtra(
             "location",
-            location
+            locationText
         )
 
 
         intent.putExtra(
             "caption",
-            caption
+            captionText
         )
 
 
@@ -527,5 +1096,71 @@ class CreateMemoryActivity : AppCompatActivity() {
         startActivity(
             intent
         )
+    }
+
+
+    // =========================================================
+    // STICKER BOX
+    // =========================================================
+
+    private fun createStickerBox():
+            GradientDrawable {
+
+        return GradientDrawable().apply {
+
+            setColor(
+                Color.rgb(
+                    248,
+                    238,
+                    216
+                )
+            )
+
+            cornerRadius =
+                dp(8).toFloat()
+        }
+    }
+
+
+    private fun createSelectedStickerBox():
+            GradientDrawable {
+
+        return GradientDrawable().apply {
+
+            setColor(
+                Color.rgb(
+                    248,
+                    238,
+                    216
+                )
+            )
+
+            cornerRadius =
+                dp(10).toFloat()
+
+            setStroke(
+                dp(3),
+                Color.rgb(
+                    235,
+                    125,
+                    94
+                )
+            )
+        }
+    }
+
+
+    // =========================================================
+    // DP
+    // =========================================================
+
+    private fun dp(
+        value: Int
+    ): Int {
+
+        return (
+                value *
+                        resources.displayMetrics.density
+                ).toInt()
     }
 }

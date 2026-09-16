@@ -1,244 +1,448 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  STICKER PALETTE SELECTION MODAL / ACTIVITY                         ║
+ ║  Layout: activity_sticker.xml                                       ║
+ ║  Theme:  Scrapbook / Craft-paper (#FDFBF7)                          ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/mp_cream"
+    tools:context=".StickerActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
 
-        <TextView
-            android:id="@+id/tvStickerTitle"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Stickers"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/page_padding_horizontal"
+            android:paddingEnd="@dimen/page_padding_horizontal"
+            android:paddingTop="@dimen/page_padding_top"
+            android:paddingBottom="@dimen/page_padding_bottom">
 
-        <TextView
-            android:id="@+id/tvStickerCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Selected: 0 / 8"
-            android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/tvStickerTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
+            <!-- HEADER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/sticker1"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/map"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/tvStickerCount"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="25dp" />
+                    <TextView
+                        android:id="@+id/tvStickerTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sticker Palette"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif" />
 
-        <ImageView
-            android:id="@+id/sticker2"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/airplane"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker1"
-            app:layout_constraintStart_toEndOf="@id/sticker1"
-            app:layout_constraintEnd_toStartOf="@id/sticker3"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Tap to select up to 8 craft stickers ✨"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic" />
 
-        <ImageView
-            android:id="@+id/sticker3"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/suitcase"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker1"
-            app:layout_constraintEnd_toEndOf="parent" />
+                </LinearLayout>
 
-        <!-- Row 2 -->
+                <TextView
+                    android:id="@+id/tvStickerCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_chip"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:gravity="center"
+                    android:text="Selected: 0 / 8"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/sticker4"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/mountain"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/sticker1"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="15dp" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/sticker5"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/wave"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker4"
-            app:layout_constraintStart_toEndOf="@id/sticker4"
-            app:layout_constraintEnd_toStartOf="@id/sticker6"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp" />
+            <View
+                android:layout_width="48dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/mp_mauve_light" />
 
-        <ImageView
-            android:id="@+id/sticker6"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/ticket"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker4"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <!-- STICKERS GRID CONTAINER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
 
-        <!-- Row 3 -->
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/sticker7"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/globe"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/sticker4"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="15dp" />
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/mp_parchment">
 
-        <ImageView
-            android:id="@+id/sticker8"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/camera"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker7"
-            app:layout_constraintStart_toEndOf="@id/sticker7"
-            app:layout_constraintEnd_toStartOf="@id/sticker9"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp" />
+                        <ImageView
+                            android:id="@+id/sticker1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/map"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
 
-        <ImageView
-            android:id="@+id/sticker9"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/heart"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker7"
-            app:layout_constraintEnd_toEndOf="parent" />
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@color/mp_parchment">
 
-        <!-- Row 4 -->
+                        <ImageView
+                            android:id="@+id/sticker2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/airplane"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
 
-        <ImageView
-            android:id="@+id/sticker10"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/pin"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/sticker7"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="15dp" />
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:background="@color/mp_parchment">
 
-        <ImageView
-            android:id="@+id/sticker11"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/sunglasses"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker10"
-            app:layout_constraintStart_toEndOf="@id/sticker10"
-            app:layout_constraintEnd_toStartOf="@id/sticker12"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp" />
+                        <ImageView
+                            android:id="@+id/sticker3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/suitcase"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
 
-        <ImageView
-            android:id="@+id/sticker12"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/polaroid"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker10"
-            app:layout_constraintEnd_toEndOf="parent" />
+                </LinearLayout>
 
-        <!-- Row 5 -->
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/sticker13"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/sun"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@id/sticker10"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="15dp" />
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/mp_parchment">
 
-        <ImageView
-            android:id="@+id/sticker14"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/palm"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker13"
-            app:layout_constraintStart_toEndOf="@id/sticker13"
-            app:layout_constraintEnd_toStartOf="@id/sticker15"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp" />
+                        <ImageView
+                            android:id="@+id/sticker4"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/mountain"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
 
-        <ImageView
-            android:id="@+id/sticker15"
-            android:layout_width="90dp"
-            android:layout_height="90dp"
-            android:src="@drawable/rainbow"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="@id/sticker13"
-            app:layout_constraintEnd_toEndOf="parent" />
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@color/mp_parchment">
 
-        <Button
-            android:id="@+id/btnDoneStickers"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="DONE"
-            app:layout_constraintTop_toBottomOf="@id/sticker13"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="20dp" />
+                        <ImageView
+                            android:id="@+id/sticker5"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/wave"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:background="@color/mp_parchment">
 
-</ScrollView>
+                        <ImageView
+                            android:id="@+id/sticker6"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ticket"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- Row 3 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker7"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/globe"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker8"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/camera"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker9"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/heart"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- Row 4 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker10"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/pin"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker11"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/sunglasses"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker12"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/polaroid"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- Row 5 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker13"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/sun"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker14"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/palm"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:background="@color/mp_parchment">
+
+                        <ImageView
+                            android:id="@+id/sticker15"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/rainbow"
+                            android:padding="12dp"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_sticker"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- DONE CTA -->
+            <Button
+                android:id="@+id/btnDoneStickers"
+                style="@style/Widget.MemoryPin.Button.PrimaryLarge"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height_large"
+                android:layout_marginTop="24dp"
+                android:text="Save Selected Stickers  ✓" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

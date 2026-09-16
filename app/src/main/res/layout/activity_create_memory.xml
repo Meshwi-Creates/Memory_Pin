@@ -1,262 +1,790 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  MODULE 3 — NEW MEMORY CREATION WORKFLOW                           ║
+ ║  Layout: activity_create_memory.xml                                 ║
+ ║  Features: Photo picker (1-3 slots), Location field w/ validation, ║
+ ║            Caption field w/ live word counter, Sticker palette,    ║
+ ║            Primary CTA "Continue to Memory Canvas →"              ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FCF5FC"
-    android:fillViewport="true"
-    android:clipToPadding="false">
+    android:background="@color/mp_cream"
+    tools:context=".CreateMemoryActivity">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="35dp">
-
-        <!-- ================= HEADER ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create a Memory"
-            android:textColor="#403B43"
-            android:textSize="27sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="Save a little piece of your journey ✨"
-            android:textColor="#777177"
-            android:textSize="14sp" />
-
-        <View
-            android:layout_width="42dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="12dp"
-            android:background="#D8C9DC" />
-
-        <!-- ================= PHOTOS ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="📷  Photos"
-            android:textColor="#403B43"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Add 1 to 3 photos from your trip"
-            android:textColor="#777177"
-            android:textSize="13sp" />
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="105dp"
-            android:layout_marginTop="9dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/page_padding_horizontal"
+            android:paddingEnd="@dimen/page_padding_horizontal"
+            android:paddingTop="@dimen/page_padding_top"
+            android:paddingBottom="@dimen/page_padding_bottom">
 
-            <ImageView
-                android:id="@+id/image1"
-                android:layout_width="0dp"
-                android:layout_height="105dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:background="#EDE6EE"
-                android:padding="3dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
+            <!-- ══════════════════════════════════════════
+                 HEADER — Back nav + Title
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/image2"
-                android:layout_width="0dp"
-                android:layout_height="105dp"
-                android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="#EDE6EE"
-                android:padding="3dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="←"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="22sp"
+                    android:contentDescription="@string/cd_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
 
-            <ImageView
-                android:id="@+id/image3"
-                android:layout_width="0dp"
-                android:layout_height="105dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:background="#EDE6EE"
-                android:padding="3dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/create_title"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/create_subtitle"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Decorative divider -->
+            <View
+                android:layout_width="48dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="52dp"
+                android:background="@color/mp_mauve_light" />
+
+            <!-- ════════════════════════════════════════════════════════
+                 STEP 1 — PHOTO PICKER GRID (1-3 photos)
+                 ════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/create_photos_label"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <!-- Step indicator badge -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:background="@drawable/bg_chip"
+                        android:gravity="center"
+                        android:text="Step 1"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="@string/create_photos_hint"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="12sp" />
+
+                <!-- 3-slot photo grid -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/photo_slot_height"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <!-- Slot 1 -->
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp">
+
+                        <ImageView
+                            android:id="@+id/image1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo"
+                            android:visibility="gone"
+                            tools:visibility="visible"
+                            tools:background="@color/mp_mauve_light" />
+
+                        <!-- Placeholder tap target -->
+                        <LinearLayout
+                            android:id="@+id/photoSlot1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:visibility="visible">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+"
+                                android:textColor="@color/mp_text_secondary"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Photo 1"
+                                android:textColor="@color/mp_text_secondary"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <!-- Remove badge (top-right) -->
+                        <TextView
+                            android:id="@+id/removeBadge1"
+                            android:layout_width="@dimen/remove_badge_size"
+                            android:layout_height="@dimen/remove_badge_size"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="4dp"
+                            android:background="@drawable/bg_chip_selected"
+                            android:gravity="center"
+                            android:text="✕"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:contentDescription="@string/cd_remove_photo"
+                            android:visibility="gone"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                    </FrameLayout>
+
+                    <!-- Slot 2 -->
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp">
+
+                        <ImageView
+                            android:id="@+id/image2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:id="@+id/photoSlot2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+"
+                                android:textColor="@color/mp_text_hint"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Photo 2"
+                                android:textColor="@color/mp_text_hint"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/removeBadge2"
+                            android:layout_width="@dimen/remove_badge_size"
+                            android:layout_height="@dimen/remove_badge_size"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="4dp"
+                            android:background="@drawable/bg_chip_selected"
+                            android:gravity="center"
+                            android:text="✕"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:contentDescription="@string/cd_remove_photo"
+                            android:visibility="gone"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                    </FrameLayout>
+
+                    <!-- Slot 3 -->
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp">
+
+                        <ImageView
+                            android:id="@+id/image3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:id="@+id/photoSlot3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_photo_slot"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+"
+                                android:textColor="@color/mp_text_hint"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Photo 3"
+                                android:textColor="@color/mp_text_hint"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/removeBadge3"
+                            android:layout_width="@dimen/remove_badge_size"
+                            android:layout_height="@dimen/remove_badge_size"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="4dp"
+                            android:background="@drawable/bg_chip_selected"
+                            android:gravity="center"
+                            android:text="✕"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:contentDescription="@string/cd_remove_photo"
+                            android:visibility="gone"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- Add Photos button -->
+                <Button
+                    android:id="@+id/btnAddPhotos"
+                    style="@style/Widget.MemoryPin.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/create_btn_add_photos" />
+
+            </LinearLayout>
+
+            <!-- ════════════════════════════════════════════════════════
+                 STEP 2 — LOCATION INPUT
+                 ════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/create_location_label"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <!-- Required indicator -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:background="@drawable/bg_chip"
+                        android:gravity="center"
+                        android:text="Required ✱"
+                        android:textColor="@color/mp_terracotta"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Location input row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@color/mp_parchment"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📍"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/etLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/create_location_hint"
+                        android:textColorHint="@color/mp_text_hint"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="14sp"
+                        android:inputType="textCapSentences"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true" />
+
+                </LinearLayout>
+
+                <!-- Validation message (hidden by default) -->
+                <TextView
+                    android:id="@+id/tvLocationError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/create_location_required"
+                    android:textColor="@color/mp_terracotta"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- ════════════════════════════════════════════════════════
+                 STEP 3 — CAPTION FIELD + LIVE WORD COUNTER
+                 ════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/create_caption_label"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:background="@drawable/bg_chip"
+                        android:gravity="center"
+                        android:text="Step 3"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Caption multiline input -->
+                <EditText
+                    android:id="@+id/etCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/mp_parchment"
+                    android:gravity="top|start"
+                    android:hint="@string/create_caption_hint"
+                    android:textColorHint="@color/mp_text_hint"
+                    android:textColor="@color/mp_text_primary"
+                    android:textSize="14sp"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLines="6"
+                    android:padding="12dp"
+                    android:fontFamily="serif" />
+
+                <!-- Live word counter — bottom-right aligned -->
+                <TextView
+                    android:id="@+id/tvWordCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="end"
+                    android:text="0 / 50 words"
+                    android:textColor="@color/mp_text_hint"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <!-- ════════════════════════════════════════════════════════
+                 STEP 4 — STICKER PALETTE (horizontal scroll)
+                 ════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/create_stickers_label"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <!-- Selection counter badge -->
+                    <TextView
+                        android:id="@+id/tvStickerCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:background="@drawable/bg_chip"
+                        android:gravity="center"
+                        android:text="0 / 8"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="@string/create_stickers_hint"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="12sp" />
+
+                <!-- Horizontal scroll sticker palette -->
+                <HorizontalScrollView
+                    android:id="@+id/stickerPaletteScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/sticker_palette_height"
+                    android:layout_marginTop="12dp"
+                    android:scrollbars="none"
+                    android:clipChildren="false">
+
+                    <LinearLayout
+                        android:id="@+id/stickerPaletteRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp">
+
+                        <!-- Sticker item template (repeated for each sticker) -->
+
+                        <!-- ✈️ Airplane -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotAirplane"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/airplane"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- 📷 Camera -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotCamera"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/camera"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- 🌍 Globe -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotGlobe"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/globe"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- ❤️ Heart -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotHeart"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/heart"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- 📍 Pin -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotPin"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/pin"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- Polaroid -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotPolaroid"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/polaroid"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- 🌴 Palm -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotPalm"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/palm"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                        <!-- 🏔️ Mountain -->
+                        <FrameLayout
+                            android:id="@+id/stickerSlotMountain"
+                            android:layout_width="@dimen/sticker_item_size"
+                            android:layout_height="@dimen/sticker_item_size"
+                            android:background="@color/mp_parchment"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/mountain"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"
+                                android:contentDescription="@string/cd_sticker" />
+
+                        </FrameLayout>
+
+                    </LinearLayout>
+
+                </HorizontalScrollView>
+
+                <!-- Button: Choose Stickers (fallback for sticker picker activity) -->
+                <Button
+                    android:id="@+id/btnStickers"
+                    style="@style/Widget.MemoryPin.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_marginTop="10dp"
+                    android:text="✨  Choose More Stickers" />
+
+            </LinearLayout>
+
+            <!-- ════════════════════════════════════════════════════════
+                 PRIMARY CTA — Continue to Memory Canvas
+                 ════════════════════════════════════════════════════════ -->
+            <Button
+                android:id="@+id/btnSaveMemory"
+                style="@style/Widget.MemoryPin.Button.PrimaryLarge"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height_large"
+                android:layout_marginTop="24dp"
+                android:text="@string/create_btn_continue"
+                android:drawablePadding="8dp" />
+
+            <!-- Footer -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/home_footer"
+                android:textColor="@color/mp_text_hint"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnAddPhotos"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#5D5363"
-            android:text="+  Add Photos"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- ================= LOCATION ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="📍  Location"
-            android:textColor="#403B43"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/etLocation"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="6dp"
-            android:backgroundTint="#B9AABD"
-            android:hint="Where did you go?"
-            android:inputType="textCapSentences"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:textColor="#403B43"
-            android:textColorHint="#9A929C"
-            android:textSize="15sp" />
-
-        <!-- ================= CAPTION ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="✍️  Caption"
-            android:textColor="#403B43"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/etCaption"
-            android:layout_width="match_parent"
-            android:layout_height="88dp"
-            android:layout_marginTop="6dp"
-            android:backgroundTint="#B9AABD"
-            android:gravity="top|start"
-            android:hint="Write something about this memory..."
-            android:inputType="textCapSentences|textMultiLine"
-            android:maxLines="5"
-            android:padding="12dp"
-            android:textColor="#403B43"
-            android:textColorHint="#9A929C"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/tvWordCount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:gravity="end"
-            android:text="0 / 50 words"
-            android:textColor="#777177"
-            android:textSize="12sp" />
-
-        <!-- ================= STICKERS ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="✨  Stickers"
-            android:textColor="#403B43"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Add up to 8 stickers to decorate your memory"
-            android:textColor="#777177"
-            android:textSize="13sp" />
-
-        <HorizontalScrollView
-            android:id="@+id/stickerScroll"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_marginTop="8dp"
-            android:background="#FFFDFC"
-            android:padding="4dp"
-            android:scrollbars="none"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/stickerContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center_vertical" />
-
-        </HorizontalScrollView>
-
-        <Button
-            android:id="@+id/btnStickers"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#E8DDEB"
-            android:text="✨  Choose Stickers"
-            android:textAllCaps="false"
-            android:textColor="#403B43"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <!-- ================= ARRANGE ================= -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="17dp"
-            android:text="🎨  Make it yours"
-            android:textColor="#403B43"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Arrange your photos, stickers and text freely"
-            android:textColor="#777177"
-            android:textSize="13sp" />
-
-        <Button
-            android:id="@+id/btnSaveMemory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#5D5363"
-            android:text="Arrange Memory  →"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

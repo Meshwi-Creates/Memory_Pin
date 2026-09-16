@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  MODULE 2 — SEE PHOTOS & PLACES EXPLORER                           ║
+ ║  Layout: activity_see_photos.xml                                    ║
+ ║  Features: Search bar, Tab control (All / Places&People),          ║
+ ║            Masonry gallery, Expandable place tree w/ people chips  ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mp_cream"
+    tools:context=".SeePhotosActivity">
+
+    <!-- ════════════════════════════════════════════════
+         Scrollable Body
+         ════════════════════════════════════════════════ -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/photosScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/page_padding_bottom">
+
+            <!-- ══════════════════════════════════════════
+                 HEADER — Title + Back nav
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:paddingTop="@dimen/page_padding_top">
+
+                <!-- Back button -->
+                <TextView
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="←"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="22sp"
+                    android:contentDescription="@string/cd_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/photos_title"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/photos_subtitle"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="2dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginTop="12dp"
+                android:background="@color/mp_mauve_light" />
+
+            <!-- ══════════════════════════════════════════
+                 SEARCH BAR
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔍"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/photos_search_hint"
+                    android:textColorHint="@color/mp_text_hint"
+                    android:textColor="@color/mp_text_primary"
+                    android:textSize="13sp"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true" />
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════
+                 SEGMENTED TAB CONTROL
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="12dp"
+                android:background="@color/mp_tab_inactive"
+                android:orientation="horizontal"
+                android:padding="4dp">
+
+                <!-- Tab A: All Memories (active) -->
+                <LinearLayout
+                    android:id="@+id/tabAll"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/bg_btn_primary"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tvTabAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/photos_tab_all"
+                        android:textColor="@color/mp_text_on_dark"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Tab B: Places & People -->
+                <LinearLayout
+                    android:id="@+id/tabPlaces"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tvTabPlaces"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/photos_tab_places"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════
+                 TAB A CONTENT — All Memories (Masonry Grid)
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:id="@+id/allContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/photos_section_all"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.10"
+                    android:textAllCaps="true" />
+
+                <!-- Row 1 of masonry-style cards (2 + 1 layout) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <!-- Tall card (2/3 width) -->
+                    <LinearLayout
+                        android:id="@+id/galleryCard1"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/gallery_card_height"
+                        android:layout_weight="2"
+                        android:layout_marginEnd="5dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="6dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:id="@+id/imgGallery1"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/mp_parchment"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                        <TextView
+                            android:id="@+id/tvGallery1Location"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="10sp"
+                            android:fontFamily="serif"
+                            tools:text="📍 Manali" />
+
+                    </LinearLayout>
+
+                    <!-- Stacked short cards (1/3 width) -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/gallery_card_height"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/galleryCard2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginBottom="4dp"
+                            android:background="@drawable/bg_polaroid_card"
+                            android:elevation="@dimen/elevation_card"
+                            android:padding="5dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:id="@+id/imgGallery2"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@color/mp_parchment"
+                                android:scaleType="centerCrop"
+                                android:contentDescription="@string/cd_memory_photo" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/galleryCard3"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_polaroid_card"
+                            android:elevation="@dimen/elevation_card"
+                            android:padding="5dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:id="@+id/imgGallery3"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@color/mp_parchment"
+                                android:scaleType="centerCrop"
+                                android:contentDescription="@string/cd_memory_photo" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Row 2 of masonry-style cards (equal 3-col) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="110dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/galleryCard4"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:id="@+id/imgGallery4"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/mp_parchment"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/galleryCard5"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:id="@+id/imgGallery5"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/mp_parchment"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/galleryCard6"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:id="@+id/imgGallery6"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/mp_parchment"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Dynamic grid container (programmatically populated) -->
+                <GridLayout
+                    android:id="@+id/dynamicGalleryGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:columnCount="3"
+                    android:useDefaultMargins="false" />
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════
+                 TAB B CONTENT — Places & People Explorer
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:id="@+id/placesContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                tools:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/photos_section_places"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.10"
+                    android:textAllCaps="true" />
+
+                <!-- ─────── LOCATION: Manali ─────── -->
+                <LinearLayout
+                    android:id="@+id/locationManali"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_scrapbook_card"
+                    android:elevation="@dimen/elevation_card"
+                    android:padding="@dimen/card_inner_padding">
+
+                    <!-- Location header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🏔️  Manali"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="15 memories  •  3 places"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/expandManali"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:gravity="center"
+                            android:text="▾"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                    <!-- Subplace: Solang Valley (expandable) -->
+                    <LinearLayout
+                        android:id="@+id/subplaceManali1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:background="@color/mp_parchment"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="└─  🏔️  Solang Valley"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <!-- People filter chips -->
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            app:singleSelection="true"
+                            app:chipSpacingHorizontal="6dp"
+                            app:chipSpacingVertical="4dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPersonal"
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="👤 Personal"
+                                android:textSize="12sp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipFriends"
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="🧑‍🤝‍🧑 Friends"
+                                android:textSize="12sp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipFamily"
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="👨‍👩‍👧 Family"
+                                android:textSize="12sp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPartner"
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="👩‍❤️‍👨 Partner"
+                                android:textSize="12sp" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                        <!-- Filtered photo grid (3-col, programmatic) -->
+                        <GridLayout
+                            android:id="@+id/filteredGridManali1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:columnCount="3"
+                            android:useDefaultMargins="false" />
+
+                    </LinearLayout>
+
+                    <!-- Subplace: Rohtang Pass -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:background="@color/mp_parchment"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="└─  ❄️  Rohtang Pass"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="6 memories"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- ─────── LOCATION: Shimla ─────── -->
+                <LinearLayout
+                    android:id="@+id/locationShimla"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_scrapbook_card"
+                    android:elevation="@dimen/elevation_card"
+                    android:padding="@dimen/card_inner_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🏞️  Shimla"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="8 memories  •  2 places"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/expandShimla"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:gravity="center"
+                            android:text="▸"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/subplaceShimla"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:background="@color/mp_parchment"
+                        android:padding="12dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="└─  🏛️  Mall Road"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            app:singleSelection="true"
+                            app:chipSpacingHorizontal="6dp">
+
+                            <com.google.android.material.chip.Chip
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="👤 Personal" />
+
+                            <com.google.android.material.chip.Chip
+                                style="@style/Widget.MemoryPin.Chip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/chip_height"
+                                android:text="👨‍👩‍👧 Family" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- ─────── LOCATION: Kutch ─────── -->
+                <LinearLayout
+                    android:id="@+id/locationKutch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_scrapbook_card"
+                    android:elevation="@dimen/elevation_card"
+                    android:padding="@dimen/card_inner_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🏜️  Kutch"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="5 memories  •  1 place"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/expandKutch"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:gravity="center"
+                            android:text="▸"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Footer -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/home_footer"
+                android:textColor="@color/mp_text_hint"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

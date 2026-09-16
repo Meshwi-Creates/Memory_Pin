@@ -1,7 +1,6 @@
 package com.meshwi.memorypin
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,7 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 
 class StickerActivity : AppCompatActivity() {
 
-    private val selectedStickers = ArrayList<Int>()
+    private val selectedStickers =
+        ArrayList<Int>()
 
     private lateinit var stickerCount: TextView
 
@@ -32,66 +32,95 @@ class StickerActivity : AppCompatActivity() {
         R.id.sticker15
     )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_sticker)
+        setContentView(
+            R.layout.activity_sticker
+        )
 
-        stickerCount = findViewById(R.id.tvStickerCount)
+        stickerCount =
+            findViewById(
+                R.id.tvStickerCount
+            )
 
         for (id in stickerIds) {
 
-            val sticker = findViewById<ImageView>(id)
+            val sticker =
+                findViewById<ImageView>(id)
 
             sticker.setOnClickListener {
+
                 selectSticker(sticker)
             }
         }
 
-        val btnDone = findViewById<Button>(R.id.btnDoneStickers)
+        findViewById<Button>(
+            R.id.btnDoneStickers
+        ).setOnClickListener {
 
-        btnDone.setOnClickListener {
-
-            val result = intent
+            val result =
+                intent
 
             result.putIntegerArrayListExtra(
                 "selectedStickers",
                 selectedStickers
             )
 
-            setResult(RESULT_OK, result)
+            setResult(
+                RESULT_OK,
+                result
+            )
 
             finish()
         }
+
+        updateCount()
     }
 
-    private fun selectSticker(sticker: ImageView) {
+    private fun selectSticker(
+        sticker: ImageView
+    ) {
 
-        val stickerId = sticker.id
+        val id =
+            sticker.id
 
-        if (selectedStickers.contains(stickerId)) {
+        if (
+            selectedStickers.contains(id)
+        ) {
 
-            selectedStickers.remove(stickerId)
+            selectedStickers.remove(id)
 
-            sticker.alpha = 1.0f
+            sticker.alpha =
+                1f
 
         } else {
 
-            if (selectedStickers.size >= 8) {
+            if (
+                selectedStickers.size >= 8
+            ) {
 
                 Toast.makeText(
                     this,
-                    "You can select maximum 8 stickers",
+                    "Maximum 8 stickers allowed",
                     Toast.LENGTH_SHORT
                 ).show()
 
                 return
             }
 
-            selectedStickers.add(stickerId)
+            selectedStickers.add(id)
 
-            sticker.alpha = 0.5f
+            sticker.alpha =
+                0.5f
         }
+
+        updateCount()
+    }
+
+    private fun updateCount() {
 
         stickerCount.text =
             "Selected: ${selectedStickers.size} / 8"

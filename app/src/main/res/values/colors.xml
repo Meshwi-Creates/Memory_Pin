@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- Main scrapbook colors -->
+    <color name="mp_cream">#FDFBF7</color>
+    <color name="mp_parchment">#F4EAD5</color>
+
+    <!-- Brand / accent -->
+    <color name="mp_terracotta">#E27D60</color>
+    <color name="mp_terracotta_dark">#C4644A</color>
+
+    <!-- Mauve -->
+    <color name="mp_mauve">#C38D9E</color>
+    <color name="mp_mauve_dark">#8F6475</color>
+    <color name="mp_mauve_light">#D8C4D2</color>
+
+    <!-- Cards / surfaces -->
+    <color name="mp_card">#FFFDFA</color>
+    <color name="mp_dock_bg">#FFFDFA</color>
+
+    <!-- Text -->
+    <color name="mp_text_primary">#403B43</color>
+    <color name="mp_text_secondary">#6B636B</color>
+    <color name="mp_text_hint">#9A9098</color>
+    <color name="mp_text_on_dark">#FFFFFF</color>
+
+    <!-- Basic white -->
+    <color name="white">#FFFFFF</color>
+
+    <!-- Borders -->
+    <color name="mp_border">#E8DDD0</color>
+    <color name="mp_divider">#E3D9D0</color>
+
+    <!-- Tabs -->
+    <color name="mp_tab_inactive">#8F858D</color>
+
+    <!-- Chips -->
+    <color name="mp_chip_bg">#F0E8E1</color>
+    <color name="mp_chip_selected_bg">#E27D60</color>
+    <color name="mp_chip_selected_text">#FFFFFF</color>
+
+    <!-- Map -->
+    <color name="mp_map_bg">#E9E0D2</color>
+    <color name="mp_map_grid">#D5C7B5</color>
+
+    <!-- Preview canvas -->
+    <color name="mp_canvas_bg">#F0E8D8</color>
+
+    <!-- Similar-memory badges -->
+    <color name="mp_badge_same_loc">#E7C8D2</color>
+    <color name="mp_badge_same_date">#F1D7A8</color>
+    <color name="mp_badge_same_people">#CFE0D5</color>
+
+    <!-- Soft scrapbook colors -->
+    <color name="mp_soft_pink">#F1DFE5</color>
+
+    <!-- Tool dock -->
+    <color name="mp_dock_icon">#6B5A69</color>
+
 </resources>

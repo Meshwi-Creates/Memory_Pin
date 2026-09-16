@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  MODULE 5 — MEMORY PREVIEW & SMART SIMILAR MEMORIES                ║
+ ║  Layout: activity_memory_preview.xml                                ║
+ ║  Features:                                                          ║
+ ║    • Top bar: Share & Export PNG actions                           ║
+ ║    • Center-stage high-fidelity scrapbook preview card             ║
+ ║    • Metadata card: Date, Place, People, Stickers + Audio player  ║
+ ║    • "✨ Smart Similar Memories" horizontal carousel               ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mp_cream"
+    tools:context=".MemoryPreviewActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/page_padding_bottom">
+
+            <!-- ══════════════════════════════════════════
+                 TOP BAR — Back | Title | Share | Export
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/mp_cream"
+                android:elevation="3dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="12dp">
+
+                <!-- Back button -->
+                <TextView
+                    android:id="@+id/btnBackPreview"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="←"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="22sp"
+                    android:contentDescription="@string/cd_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:text="@string/preview_title"
+                    android:textColor="@color/mp_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="serif" />
+
+                <!-- Export PNG -->
+                <Button
+                    android:id="@+id/btnExportPng"
+                    style="@style/Widget.MemoryPin.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/preview_btn_export"
+                    android:textSize="12sp" />
+
+                <!-- Share button -->
+                <Button
+                    android:id="@+id/btnShare"
+                    style="@style/Widget.MemoryPin.Button.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="@string/preview_btn_share"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <!-- Subtitle -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:paddingTop="8dp"
+                android:text="@string/preview_subtitle"
+                android:textColor="@color/mp_text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
+
+            <!-- ══════════════════════════════════════════
+                 CENTER STAGE — High-fidelity Preview Card
+                 ══════════════════════════════════════════ -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:paddingTop="16dp">
+
+                <!-- Polaroid card wrapper -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_polaroid_card"
+                    android:elevation="@dimen/elevation_card"
+                    android:padding="10dp">
+
+                    <!-- Tape top-left decoration -->
+                    <View
+                        android:layout_width="@dimen/tape_width"
+                        android:layout_height="@dimen/tape_height"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="-18dp"
+                        android:rotation="-2"
+                        android:background="@drawable/bg_tape"
+                        android:alpha="0.9" />
+
+                    <!-- Canvas preview (full-size scrapbook image render) -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/preview_canvas_height"
+                        android:background="@color/mp_canvas_bg">
+
+                        <ImageView
+                            android:id="@+id/previewMainImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                        <!-- Pushpin at top center of preview -->
+                        <TextView
+                            android:layout_width="@dimen/pushpin_size"
+                            android:layout_height="@dimen/pushpin_size"
+                            android:layout_gravity="top|center_horizontal"
+                            android:layout_marginTop="-12dp"
+                            android:text="📍"
+                            android:textSize="20sp"
+                            android:gravity="center"
+                            android:contentDescription="@string/cd_pin" />
+
+                    </FrameLayout>
+
+                    <!-- Polaroid footer: Location + Caption -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/previewLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📍 Travel Memory"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/previewCaption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:maxLines="3"
+                            android:ellipsize="end"
+                            android:text="A special moment worth remembering ✨"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="15sp"
+                            android:fontFamily="serif" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- ══════════════════════════════════════════
+                 METADATA CARD — Details + Audio Player
+                 ══════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginTop="24dp"
+                android:text="@string/preview_section_details"
+                android:textColor="@color/mp_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:padding="@dimen/card_inner_padding">
+
+                <!-- Detail columns row (Date | Place | People | Stickers) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Date column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📅"
+                            android:textSize="20sp"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/preview_detail_date"
+                            android:textColor="@color/mp_text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.06" />
+
+                        <TextView
+                            android:id="@+id/previewDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:gravity="center"
+                            tools:text="23 May" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mp_divider"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- Place column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📍"
+                            android:textSize="20sp"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/preview_detail_place"
+                            android:textColor="@color/mp_text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.06" />
+
+                        <TextView
+                            android:id="@+id/previewPlaceName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:gravity="center"
+                            tools:text="Manali" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mp_divider"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- People column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="👥"
+                            android:textSize="20sp"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/preview_detail_people"
+                            android:textColor="@color/mp_text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.06" />
+
+                        <TextView
+                            android:id="@+id/previewPeople"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:gravity="center"
+                            tools:text="Friends" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/mp_divider"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- Stickers column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="✨"
+                            android:textSize="20sp"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/preview_detail_stickers"
+                            android:textColor="@color/mp_text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.06" />
+
+                        <TextView
+                            android:id="@+id/previewStickerCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:gravity="center"
+                            tools:text="3" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/mp_divider" />
+
+                <!-- ── AUDIO PLAYER WIDGET ── -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/preview_audio_label"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/touch_target_min"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@color/mp_parchment"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp">
+
+                        <!-- Play/Pause button (48dp) -->
+                        <TextView
+                            android:id="@+id/btnAudioPlay"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:gravity="center"
+                            android:text="@string/preview_audio_play"
+                            android:textColor="@color/mp_terracotta"
+                            android:textSize="22sp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:contentDescription="@string/cd_play_audio"
+                            android:background="?attr/selectableItemBackgroundBorderless" />
+
+                        <!-- Waveform visualiser placeholder -->
+                        <FrameLayout
+                            android:id="@+id/waveformContainer"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/audio_waveform_height"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:background="@color/mp_divider">
+
+                            <!-- Animated waveform bars (drawn programmatically) -->
+                            <LinearLayout
+                                android:id="@+id/waveformBars"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp" />
+
+                        </FrameLayout>
+
+                        <!-- Duration label -->
+                        <TextView
+                            android:id="@+id/tvAudioDuration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            tools:text="0:28" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ══════════════════════════════════════════
+                 SMART SIMILAR MEMORIES — Horizontal Carousel
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="28dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/preview_section_similar"
+                    android:textColor="@color/mp_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="serif" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="3dp"
+                android:text="@string/preview_similar_desc"
+                android:textColor="@color/mp_text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
+
+            <!-- Filter chips: Same Location | Same Date | Same People -->
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="10dp"
+                app:singleSelection="true"
+                app:chipSpacingHorizontal="6dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/filterSameLocation"
+                    style="@style/Widget.MemoryPin.Chip.Selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/chip_height"
+                    android:text="@string/badge_same_location"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/filterSameDate"
+                    style="@style/Widget.MemoryPin.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/chip_height"
+                    android:text="@string/badge_same_date" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/filterSamePeople"
+                    style="@style/Widget.MemoryPin.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/chip_height"
+                    android:text="@string/badge_same_people" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Horizontal carousel of similar mini-cards -->
+            <HorizontalScrollView
+                android:id="@+id/similarMemoriesScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:clipToPadding="false"
+                android:scrollbars="none">
+
+                <!-- Populated programmatically by MemoryPreviewActivity -->
+                <LinearLayout
+                    android:id="@+id/similarMemoryContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/similar_card_height"
+                    android:orientation="horizontal">
+
+                    <!-- ── Sample card 1 (tools preview) ── -->
+                    <LinearLayout
+                        android:layout_width="@dimen/similar_card_width"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="6dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        tools:ignore="UselessParent">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/mp_parchment">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:background="@color/mp_parchment"
+                                android:contentDescription="@string/cd_memory_photo" />
+
+                        </FrameLayout>
+
+                        <!-- Location badge -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_marginTop="5dp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:background="@color/mp_badge_same_loc"
+                            android:gravity="center"
+                            android:text="@string/badge_same_location"
+                            android:textColor="@color/mp_text_primary"
+                            android:textSize="9sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:fontFamily="serif"
+                            tools:text="📍 Manali" />
+
+                    </LinearLayout>
+
+                    <!-- ── Sample card 2 (tools preview) ── -->
+                    <LinearLayout
+                        android:layout_width="@dimen/similar_card_width"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="6dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/mp_parchment" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_marginTop="5dp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:background="@color/mp_badge_same_date"
+                            android:gravity="center"
+                            android:text="@string/badge_same_date"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="10sp"
+                            android:fontFamily="serif"
+                            tools:text="📍 Shimla" />
+
+                    </LinearLayout>
+
+                    <!-- ── Sample card 3 (tools preview) ── -->
+                    <LinearLayout
+                        android:layout_width="@dimen/similar_card_width"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_polaroid_card"
+                        android:elevation="@dimen/elevation_card"
+                        android:padding="6dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/mp_parchment" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_marginTop="5dp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:background="@color/mp_badge_same_people"
+                            android:gravity="center"
+                            android:text="@string/badge_same_people"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/mp_text_secondary"
+                            android:textSize="10sp"
+                            android:fontFamily="serif"
+                            tools:text="📍 Kutch" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <!-- Footer -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:text="@string/home_footer"
+                android:textColor="@color/mp_text_hint"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

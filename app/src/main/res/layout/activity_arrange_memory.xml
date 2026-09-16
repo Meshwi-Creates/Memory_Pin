@@ -1,170 +1,446 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  MODULE 4 — SCRAPBOOK CANVAS & DRAG EDITOR                         ║
+ ║  Layout: activity_arrange_memory.xml                                ║
+ ║  Features:                                                          ║
+ ║    • Top bar: Back, Undo/Redo, 💾 SAVE MEMORY                     ║
+ ║    • Corkboard/kraft canvas (bounded FrameLayout, draggable views) ║
+ ║    • Selected-element control strip (−/+, ↻, ↑/↓ layer, 🗑)      ║
+ ║    • Bottom tool dock: Paper textures, Font picks, 🎙️ Audio note  ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4EFF5">
+    android:background="@color/mp_parchment"
+    tools:context=".ArrangeMemoryActivity">
 
-    <!-- ================= HEADER ================= -->
-
-    <TextView
-        android:id="@+id/tvArrangeTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Make Your Memory"
-        android:textColor="#403B43"
-        android:textSize="23sp"
-        android:textStyle="bold"
-        android:letterSpacing="0.02"
+    <!-- ════════════════════════════════════════════════
+         TOP APP BAR
+         ════════════════════════════════════════════════ -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/mp_cream"
+        android:elevation="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Back button (48dp touch target) -->
+        <TextView
+            android:id="@+id/btnBackCanvas"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="←"
+            android:textColor="@color/mp_text_secondary"
+            android:textSize="22sp"
+            android:contentDescription="@string/cd_back"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvArrangeTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:text="@string/canvas_title"
+            android:textColor="@color/mp_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="serif" />
+
+        <!-- Undo button -->
+        <Button
+            style="@style/Widget.MemoryPin.Button.Icon"
+            android:id="@+id/btnUndo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="@string/canvas_btn_undo"
+            android:textColor="@color/mp_text_secondary"
+            android:textSize="12sp"
+            android:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            android:contentDescription="Undo" />
+
+        <!-- Redo button -->
+        <Button
+            style="@style/Widget.MemoryPin.Button.Icon"
+            android:id="@+id/btnRedo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="@string/canvas_btn_redo"
+            android:textColor="@color/mp_text_secondary"
+            android:textSize="12sp"
+            android:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            android:contentDescription="Redo" />
+
+        <!-- Save Memory CTA -->
+        <Button
+            android:id="@+id/btnSaveArrangement"
+            style="@style/Widget.MemoryPin.Button.Save"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:text="@string/canvas_btn_save"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+    <!-- Hint text below top bar -->
     <TextView
         android:id="@+id/tvArrangeHint"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Tap an element • Drag to move • Use controls below"
-        android:textColor="#777177"
-        android:textSize="12sp"
-        app:layout_constraintTop_toBottomOf="@id/tvArrangeTitle"
+        android:gravity="center"
+        android:text="@string/canvas_hint"
+        android:textColor="@color/mp_text_hint"
+        android:textSize="11sp"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ================= SCRAPBOOK CANVAS ================= -->
-
+    <!-- ════════════════════════════════════════════════
+         MAIN CANVAS — Bounded corkboard FrameLayout
+         Hosts draggable/scalable child views programmatically.
+         ════════════════════════════════════════════════ -->
     <FrameLayout
         android:id="@+id/memoryCanvas"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="4dp"
         android:background="@drawable/memory_canvas_background"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:padding="10dp"
+        android:elevation="2dp"
         app:layout_constraintTop_toBottomOf="@id/tvArrangeHint"
-        app:layout_constraintBottom_toTopOf="@id/photoControls"
+        app:layout_constraintBottom_toTopOf="@id/selectedElementLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ================= EDIT CONTROLS ================= -->
+    <!-- ════════════════════════════════════════════════
+         SELECTED ELEMENT CONTROLS
+         ════════════════════════════════════════════════ -->
+    <TextView
+        android:id="@+id/selectedElementLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/canvas_section_elements"
+        android:textColor="@color/mp_text_secondary"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toTopOf="@id/photoControls"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="4dp" />
 
     <LinearLayout
         android:id="@+id/photoControls"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        app:layout_constraintBottom_toTopOf="@id/btnSaveArrangement"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        app:layout_constraintBottom_toTopOf="@id/toolDock"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- CONTROL LABEL -->
+        <!-- Scale Down (−) -->
+        <Button
+            android:id="@+id/btnPhotoSmall"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_size"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="@string/canvas_ctrl_scale_down"
+            android:textSize="20sp"
+            android:contentDescription="Scale down" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Selected Element"
-            android:textColor="#777177"
-            android:textSize="11sp"
-            android:layout_marginBottom="3dp" />
+        <!-- Scale Up (+) -->
+        <Button
+            android:id="@+id/btnPhotoBig"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_size"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="@string/canvas_ctrl_scale_up"
+            android:textSize="20sp"
+            android:contentDescription="Scale up" />
 
-        <!-- CONTROL BUTTONS -->
+        <!-- Rotate (↻) -->
+        <Button
+            android:id="@+id/btnPhotoRotate"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_size"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="@string/canvas_ctrl_rotate"
+            android:textSize="20sp"
+            android:contentDescription="Rotate element" />
 
+        <!-- Bring to Front -->
+        <Button
+            android:id="@+id/btnBringFront"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_wide"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="@string/canvas_ctrl_front"
+            android:textSize="10sp"
+            android:contentDescription="Bring to front" />
+
+        <!-- Send to Back -->
+        <Button
+            android:id="@+id/btnSendBack"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_wide"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="@string/canvas_ctrl_back"
+            android:textSize="10sp"
+            android:contentDescription="Send to back" />
+
+        <!-- Edit text (pencil) -->
+        <Button
+            android:id="@+id/btnEditText"
+            style="@style/Widget.MemoryPin.Button.Canvas"
+            android:layout_width="@dimen/canvas_ctrl_btn_size"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:layout_marginEnd="6dp"
+            android:text="✎"
+            android:textSize="18sp"
+            android:contentDescription="Edit text" />
+
+        <!-- Delete (🗑) -->
+        <Button
+            android:id="@+id/btnPhotoDelete"
+            style="@style/Widget.MemoryPin.Button.Canvas.Destructive"
+            android:layout_width="@dimen/canvas_ctrl_btn_size"
+            android:layout_height="@dimen/canvas_ctrl_btn_size"
+            android:text="@string/canvas_ctrl_delete"
+            android:textSize="18sp"
+            android:contentDescription="Delete element" />
+
+    </LinearLayout>
+
+    <!-- ════════════════════════════════════════════════
+         BOTTOM TOOL DOCK
+         Paper texture selectors | Font picks | Audio note
+         ════════════════════════════════════════════════ -->
+    <LinearLayout
+        android:id="@+id/toolDock"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/tool_dock_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/mp_dock_bg"
+        android:elevation="@dimen/elevation_dock"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Paper Texture Picker label -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
             android:gravity="center">
 
-            <Button
-                android:id="@+id/btnPhotoSmall"
-                android:layout_width="48dp"
-                android:layout_height="44dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                android:text="−"
-                android:textColor="@color/white"
-                android:textSize="21sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/canvas_section_paper"
+                android:textColor="@color/mp_dock_icon"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true" />
 
-            <Button
-                android:id="@+id/btnPhotoBig"
-                android:layout_width="48dp"
-                android:layout_height="44dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                android:text="+"
-                android:textColor="@color/white"
-                android:textSize="21sp" />
+            <!-- 3 texture swatches (horizontal) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnPhotoRotate"
-                android:layout_width="58dp"
-                android:layout_height="44dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                android:text="↻"
-                android:textColor="@color/white"
-                android:textSize="21sp" />
+                <!-- Swatch 1: Kraft -->
+                <LinearLayout
+                    android:id="@+id/textureKraft"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#D4B896"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-            <Button
-                android:id="@+id/btnEditText"
-                android:layout_width="58dp"
-                android:layout_height="44dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                android:text="✎"
-                android:textColor="@color/white"
-                android:textSize="20sp" />
+                <!-- Swatch 2: Cream -->
+                <LinearLayout
+                    android:id="@+id/textureCream"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#F0E8D8"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-            <Button
-                android:id="@+id/btnPhotoDelete"
-                android:layout_width="58dp"
-                android:layout_height="44dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="0dp"
-                android:text="⌫"
-                android:textColor="@color/white"
-                android:textSize="19sp" />
+                <!-- Swatch 3: Parchment -->
+                <LinearLayout
+                    android:id="@+id/textureParchment"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#F4EAD5"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Vertical divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="40dp"
+            android:background="#4DFFFFFF"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Font Style Picker -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/canvas_section_font"
+                android:textColor="@color/mp_dock_icon"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <!-- Font A: Serif -->
+                <TextView
+                    android:id="@+id/fontSerif"
+                    android:layout_width="40dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#33FFFFFF"
+                    android:gravity="center"
+                    android:text="Aa"
+                    android:textColor="@color/mp_text_on_dark"
+                    android:textSize="14sp"
+                    android:fontFamily="serif"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Font B: Sans -->
+                <TextView
+                    android:id="@+id/fontSans"
+                    android:layout_width="40dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="#33FFFFFF"
+                    android:gravity="center"
+                    android:text="Aa"
+                    android:textColor="@color/mp_text_on_dark"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Font C: Monospace -->
+                <TextView
+                    android:id="@+id/fontMono"
+                    android:layout_width="40dp"
+                    android:layout_height="32dp"
+                    android:background="#33FFFFFF"
+                    android:gravity="center"
+                    android:text="Aa"
+                    android:textColor="@color/mp_text_on_dark"
+                    android:textSize="14sp"
+                    android:fontFamily="monospace"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Vertical divider -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="40dp"
+            android:background="#4DFFFFFF"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 🎙️ Audio Note button -->
+        <LinearLayout
+            android:id="@+id/btnAddAudio"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎙️"
+                android:textSize="24sp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Add 30s\nAudio Note"
+                android:textColor="@color/mp_dock_icon"
+                android:textSize="9sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:letterSpacing="0.04" />
 
         </LinearLayout>
 
     </LinearLayout>
-
-    <!-- ================= SAVE ================= -->
-
-    <Button
-        android:id="@+id/btnSaveArrangement"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="10dp"
-        android:backgroundTint="#5D5363"
-        android:elevation="3dp"
-        android:text="SAVE MEMORY"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

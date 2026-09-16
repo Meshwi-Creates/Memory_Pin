@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ╔══════════════════════════════════════════════════════════════════════╗
+ ║  MODULE 6 — VISUAL MEMORY MAP                                       ║
+ ║  Layout: activity_memory_map.xml                                    ║
+ ║  Features:                                                          ║
+ ║    • Illustrated map canvas with custom pushpin locations          ║
+ ║    • Selected Pin Popup card (Place, Subplaces, Count, Thumbnail) ║
+ ║    • Journey list cards (Manali / Shimla / Kutch)                  ║
+ ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mp_cream"
+    tools:context=".MemoryMapActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/page_padding_bottom">
+
+            <!-- ══════════════════════════════════════════
+                 HEADER — Back + Title
+                 ══════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/page_padding_horizontal"
+                android:paddingEnd="@dimen/page_padding_horizontal"
+                android:paddingTop="@dimen/page_padding_top">
+
+                <TextView
+                    android:id="@+id/btnBackMap"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="←"
+                    android:textColor="@color/mp_text_secondary"
+                    android:textSize="22sp"
+                    android:contentDescription="@string/cd_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_title"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/map_subtitle"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="48dp"
+                android:layout_height="2dp"
+                android:layout_marginStart="68dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/mp_mauve_light" />
+
+            <!-- ══════════════════════════════════════════
+                 ILLUSTRATED MAP CANVAS
+                 ══════════════════════════════════════════ -->
+            <FrameLayout
+                android:id="@+id/mapCanvas"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/map_canvas_height"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="16dp"
+                android:elevation="@dimen/elevation_card"
+                android:clickable="true"
+                android:focusable="true">
+
+                <!-- Map background: illustrated kraft/parchment tones -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@color/mp_map_bg">
+
+                    <!-- Map grid lines (horizontal) -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/mp_map_grid"
+                        android:layout_marginTop="55dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/mp_map_grid"
+                        android:layout_marginTop="80dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/mp_map_grid"
+                        android:layout_marginTop="80dp" />
+
+                </LinearLayout>
+
+                <!-- Map subtle watermark text -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:alpha="0.18"
+                    android:clickable="false">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MEMORY MAP"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="36sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.2"
+                        android:fontFamily="serif"
+                        android:gravity="center" />
+
+                </LinearLayout>
+
+                <!-- Route line: Manali → Shimla → Kutch (rotated View) -->
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="160dp"
+                    android:layout_gravity="center"
+                    android:background="@color/mp_mauve"
+                    android:rotation="30"
+                    android:alpha="0.5" />
+
+                <!-- ══ PIN: Manali (terracotta = active/selected) ══ -->
+                <LinearLayout
+                    android:id="@+id/pinManali"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="60dp"
+                    android:layout_marginTop="40dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless">
+
+                    <FrameLayout
+                        android:layout_width="@dimen/map_pin_size"
+                        android:layout_height="@dimen/map_pin_size"
+                        android:background="@drawable/bg_map_pin_active">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="📍"
+                            android:textSize="20sp"
+                            android:contentDescription="@string/cd_pin" />
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Manali"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:background="@color/mp_map_bg"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
+
+                </LinearLayout>
+
+                <!-- ══ PIN: Shimla ══ -->
+                <LinearLayout
+                    android:id="@+id/pinShimla"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|start"
+                    android:layout_marginStart="55dp"
+                    android:layout_marginTop="90dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless">
+
+                    <FrameLayout
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_map_pin_inactive">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="📍"
+                            android:textSize="17sp"
+                            android:contentDescription="@string/cd_pin" />
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Shimla"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:background="@color/mp_map_bg"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
+
+                </LinearLayout>
+
+                <!-- ══ PIN: Kutch ══ -->
+                <LinearLayout
+                    android:id="@+id/pinKutch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="50dp"
+                    android:layout_marginStart="80dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless">
+
+                    <FrameLayout
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:background="@drawable/bg_map_pin_inactive">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="📍"
+                            android:textSize="16sp"
+                            android:contentDescription="@string/cd_pin" />
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Kutch"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:background="@color/mp_map_bg"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
+
+                </LinearLayout>
+
+                <!-- ══ SELECTED PIN POPUP CARD (visible when pin tapped) ══ -->
+                <LinearLayout
+                    android:id="@+id/pinPopupCard"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="100dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_scrapbook_card"
+                    android:elevation="@dimen/elevation_popup"
+                    android:padding="12dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <!-- Popup header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/popupPlaceName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/mp_text_primary"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                tools:text="Manali" />
+
+                            <TextView
+                                android:id="@+id/popupSubplaceCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/mp_text_secondary"
+                                android:textSize="11sp"
+                                tools:text="3 subplaces" />
+
+                        </LinearLayout>
+
+                        <!-- Dismiss button -->
+                        <TextView
+                            android:id="@+id/popupDismiss"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:gravity="center"
+                            android:text="✕"
+                            android:textColor="@color/mp_text_hint"
+                            android:textSize="14sp"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                    </LinearLayout>
+
+                    <!-- Stats row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal">
+
+                            <TextView
+                                android:id="@+id/popupMemoryCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/mp_terracotta"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                tools:text="15" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="memories"
+                                android:textColor="@color/mp_text_secondary"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <!-- Thumbnail preview -->
+                        <ImageView
+                            android:id="@+id/popupThumbnail"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:scaleType="centerCrop"
+                            android:background="@color/mp_parchment"
+                            android:contentDescription="@string/cd_memory_photo" />
+
+                    </LinearLayout>
+
+                    <!-- Open Location Folder CTA -->
+                    <Button
+                        android:id="@+id/popupBtnOpenFolder"
+                        style="@style/Widget.MemoryPin.Button.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/btn_height"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/map_open_folder"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- ══════════════════════════════════════════
+                 JOURNEY LIST — location cards
+                 ══════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginTop="24dp"
+                android:text="@string/map_section_journeys"
+                android:textColor="@color/mp_text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.10"
+                android:textAllCaps="true" />
+
+            <!-- ─── Manali ─── -->
+            <LinearLayout
+                android:id="@+id/journeyManali"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:paddingStart="@dimen/card_inner_padding"
+                android:paddingEnd="@dimen/card_inner_padding"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <!-- Location emoji icon -->
+                <TextView
+                    android:layout_width="@dimen/place_icon_size"
+                    android:layout_height="@dimen/place_icon_size"
+                    android:background="@color/mp_parchment"
+                    android:gravity="center"
+                    android:text="🏔️"
+                    android:textSize="24sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Manali"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="15 memories  •  3 subplaces"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="→"
+                    android:textColor="@color/mp_terracotta"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
+
+            <!-- ─── Shimla ─── -->
+            <LinearLayout
+                android:id="@+id/journeyShimla"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:paddingStart="@dimen/card_inner_padding"
+                android:paddingEnd="@dimen/card_inner_padding"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <TextView
+                    android:layout_width="@dimen/place_icon_size"
+                    android:layout_height="@dimen/place_icon_size"
+                    android:background="@color/mp_parchment"
+                    android:gravity="center"
+                    android:text="🏞️"
+                    android:textSize="24sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shimla"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="8 memories  •  2 subplaces"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="→"
+                    android:textColor="@color/mp_terracotta"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
+
+            <!-- ─── Kutch ─── -->
+            <LinearLayout
+                android:id="@+id/journeyKutch"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginStart="@dimen/page_padding_horizontal"
+                android:layout_marginEnd="@dimen/page_padding_horizontal"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_scrapbook_card"
+                android:elevation="@dimen/elevation_card"
+                android:paddingStart="@dimen/card_inner_padding"
+                android:paddingEnd="@dimen/card_inner_padding"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <TextView
+                    android:layout_width="@dimen/place_icon_size"
+                    android:layout_height="@dimen/place_icon_size"
+                    android:background="@color/mp_parchment"
+                    android:gravity="center"
+                    android:text="🏜️"
+                    android:textSize="24sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kutch"
+                        android:textColor="@color/mp_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="5 memories  •  1 subplace"
+                        android:textColor="@color/mp_text_secondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="→"
+                    android:textColor="@color/mp_terracotta"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
+
+            <!-- Footer -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/map_footer"
+                android:textColor="@color/mp_text_hint"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:fontFamily="serif"
+                android:textStyle="italic" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

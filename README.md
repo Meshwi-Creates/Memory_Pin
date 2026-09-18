@@ -1,153 +1,137 @@
-# 📍 Memory Pin
+# 📌 Memory Pin
 
-### A Scrapbook-Style Travel Memory App
+Memory Pin is an Android application for creatively preserving and organizing travel memories using photos, locations, captions, and stickers.
 
-Memory Pin is an Android application that allows users to create and save personalized travel memories using photos, locations, captions, and stickers.
+## 📖 Project Definition
 
-Instead of storing travel photos as a simple gallery, Memory Pin lets users arrange their memories on a scrapbook-style canvas and create a unique visual memory for every trip.
-
----
+Memory Pin is an Android application for creatively preserving travel memories using photos, locations, captions, and stickers.
+It allows users to create, customize, save, and revisit their memories through a scrapbook-style interface.
 
 ## ✨ Features
 
-- 📷 Select **1 to 3 photos** for a memory
-- 📍 Add a **travel location**
-- ✍️ Add a **caption** with a maximum of **50 words**
-- ✨ Add up to **8 stickers**
-- 🎨 Arrange photos, stickers, location and caption freely
-- 👆 Drag elements around the scrapbook canvas
-- 🔍 Resize selected elements
-- 🔄 Rotate elements
-- ✏️ Edit text elements
-- 🗑️ Delete unwanted elements
-- 💾 Save memories for later
-- 📱 View saved memories in a scrapbook-style gallery
-- 🔐 Photos are stored using app-private storage for reliable persistence
+- 📸 Add 1–3 photos to a memory
+- 📍 Add a travel location
+- ✍️ Add a short caption
+- ✨ Add up to 8 stickers
+- 🎨 Arrange photos, stickers, location, and caption freely
+- 🔄 Resize and rotate photos
+- ↕️ Move elements forward or backward
+- 🗑️ Delete selected elements
+- ✏️ Edit location and caption
+- 💾 Save customized memories
+- 🖼️ View all saved memories
+- 🗺️ Explore memories through a travel map
+- 👥 Explore memories through Places & People
+- ❤️ Preview saved memories
+- ✨ View similar memories based on location, date, or people
 
----
+## 🎯 Objective
 
-## 🎨 Main Screens
-
-### 1. Home Screen
-
-The home screen displays all saved travel memories in a clean three-column scrapbook-style gallery.
-
-Users can create a new memory using the **Create Memory** button.
-
-### 2. Create Memory
-
-Users can enter the basic information for their memory:
-
-- Photos
-- Location
-- Caption
-- Stickers
-
-After entering the details, the user can continue to the arrangement screen.
-
-### 3. Arrange Memory
-
-This is the main feature of Memory Pin.
-
-Users can freely arrange their:
-
-- Photos
-- Stickers
-- Location
-- Caption
-
-on a scrapbook-style canvas.
-
-Elements can be moved, resized, rotated, edited, or deleted.
-
-### 4. Saved Memories
-
-Completed memories are saved and displayed on the home screen so that users can revisit their travel moments.
-
----
+The main objective of Memory Pin is to provide a simple, creative, and interactive way to preserve travel experiences digitally instead of keeping memories scattered across a phone gallery.
 
 ## 🛠️ Technologies Used
 
-- **Android Studio**
 - **Kotlin**
+- **Android Studio**
 - **XML**
-- **Android SDK**
 - **ConstraintLayout**
 - **FrameLayout**
-- **GridLayout**
 - **SharedPreferences**
 - **JSON**
-- **Android Activity Result API**
-- **Android App Private Storage**
+- **Android Activity & Intent**
+- **Git & GitHub**
 
----
+## 📱 Application Modules
 
-## 🏗️ Android Concepts Used
+### 🏠 Home
 
-This project demonstrates practical understanding of Android application development, including:
+The home screen provides access to:
 
-- Activities
-- Activity lifecycle
-- Intents
-- Activity Result API
-- XML layouts
-- View-based UI
-- ConstraintLayout
-- FrameLayout
-- GridLayout
-- ImageView
-- TextView
-- EditText
-- Buttons
-- ScrollView
-- Event handling
-- SharedPreferences
-- JSON data storage
-- App-private file storage
-- Dynamic UI elements
-- Touch and drag interactions
+- Latest memory
+- Saved memories
+- See Photos
+- Memory Map
+- Create New Memory
 
----
-## 📱 Screenshots
+### ✏️ Create Memory
 
-### 1. Home Screen
+Users can create a new memory by adding:
 
-![home screen](app/Screenshots/1.png)
+- Photos
+- Location
+- Caption
+- Stickers
 
-### 2. Create Memory
+### 🎨 Memory Canvas
 
-![Create Memory](app/Screenshots/2.png)
+The scrapbook canvas allows users to customize their memory.
 
-### 3. Arrange Memory
+Users can:
 
-![Arrange Memory](app/Screenshots/3.png)
+- Drag elements
+- Resize photos
+- Rotate photos
+- Change element order
+- Edit text
+- Delete elements
 
+### 🖼️ See Photos
 
----
+Users can browse their saved memories and explore them through:
 
-## 📂 Project Structure
+- All Memories
+- Places & People
+
+The Places & People section organizes memories using a hierarchy such as:
+
+**Place → Subplace → People → Photos**
+
+### 🗺️ Memory Map
+
+The Memory Map provides a visual way to explore travel memories according to their locations.
+
+### ❤️ Memory Preview
+
+The preview screen displays the selected memory along with:
+
+- Main memory image
+- Location
+- Caption
+- Date
+- Place
+- People
+- Sticker information
+- Similar memories
+
+## 💾 Data Storage
+
+Memory Pin stores saved memory information locally on the device.
+
+The application uses:
+
+- **SharedPreferences** for storing memory information
+- **JSON** for organizing memory data
+- **Internal storage** for saved images and generated memory previews
+
+## 🔄 Application Flow
 
 ```text
-Memory_pin/
-│
-├── app/
-│   └── src/
-│       └── main/
-│           ├── java/
-│           │   └── com/
-│           │       └── meshwi/
-│           │           └── memorypin/
-│           │               ├── MainActivity.kt
-│           │               ├── CreateMemoryActivity.kt
-│           │               ├── ArrangeMemoryActivity.kt
-│           │               └── StickerActivity.kt
-│           │
-│           ├── res/
-│           │   ├── drawable/
-│           │   ├── layout/
-│           │   ├── mipmap/
-│           │   └── values/
-│           │
-│           └── AndroidManifest.xml
-│
-└── README.md
+Home
+  ↓
+Create New Memory
+  ↓
+Add Photos
+  ↓
+Add Location & Caption
+  ↓
+Add Stickers
+  ↓
+Memory Canvas
+  ↓
+Arrange & Customize
+  ↓
+Save Memory
+  ↓
+Home / Gallery
+  ↓
+Preview / Explore Memories
